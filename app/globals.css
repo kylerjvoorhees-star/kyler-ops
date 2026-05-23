@@ -3,11 +3,20 @@
 * { box-sizing: border-box; margin: 0; padding: 0; }
 
 html, body {
-  background: #010509;
-  color: #7AABCC;
+  background: #000000;
+  color: #ffffff;
   font-family: var(--font-geist-sans), -apple-system, sans-serif;
   font-size: 13px;
   -webkit-font-smoothing: antialiased;
+}
+
+/* Home 3-column layout */
+.home-grid {
+  display: grid;
+  grid-template-columns: 320px 1fr 280px;
+  gap: 16px;
+  padding: 20px 24px;
+  align-items: start;
 }
 
 /* Dashboard grid — 3 equal columns, stacks on mobile */
@@ -17,7 +26,10 @@ html, body {
   gap: 14px;
 }
 
-@media (max-width: 768px) {
+@media (max-width: 900px) {
+  .home-grid {
+    grid-template-columns: 1fr;
+  }
   .dashboard-grid {
     grid-template-columns: 1fr;
   }
@@ -26,14 +38,15 @@ html, body {
 /* Slim scrollbar */
 ::-webkit-scrollbar { width: 3px; height: 3px; }
 ::-webkit-scrollbar-track { background: transparent; }
-::-webkit-scrollbar-thumb { background: #0A2840; border-radius: 2px; }
+::-webkit-scrollbar-thumb { background: #333333; border-radius: 2px; }
 
 /* Recharts tooltip */
 .recharts-tooltip-wrapper .recharts-default-tooltip {
-  background: #071E30 !important;
-  border: 0.5px solid #0A2840 !important;
+  background: #111111 !important;
+  border: 1px solid #222222 !important;
   border-radius: 5px !important;
   font-size: 11px !important;
+  color: #ffffff !important;
 }
 
 /* Remove default select/input browser chrome */
@@ -41,6 +54,11 @@ input, textarea, select, button {
   font-family: inherit;
 }
 select option {
-  background: #071E30;
-  color: #7AABCC;
+  background: #111111;
+  color: #ffffff;
+}
+
+/* Range input */
+input[type="range"] {
+  accent-color: #ffffff;
 }

@@ -8,25 +8,26 @@ const GOALS = { calories: 2200, protein: 180, carbs: 200, fat: 70 }
 
 interface MacroTotals { calories: number; protein: number; carbs: number; fat: number }
 
-function Ring({ value, max, label, color }: { value: number; max: number; label: string; color: string }) {
+function Ring({ value, max, label }: { value: number; max: number; label: string }) {
   const pct = Math.min(value / max, 1)
   const r = 24, C = 2 * Math.PI * r
+  const over = pct >= 1
   return (
     <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '6px' }}>
       <div style={{ position: 'relative', width: '60px', height: '60px' }}>
         <svg width="60" height="60" style={{ transform: 'rotate(-90deg)' }}>
-          <circle cx="30" cy="30" r={r} fill="none" stroke="#0A2840" strokeWidth="4" />
-          <circle cx="30" cy="30" r={r} fill="none" stroke={color} strokeWidth="4"
-            strokeDasharray={C} strokeDashoffset={C * (1 - pct)}
+          <circle cx="30" cy="30" r={r} fill="none" stroke="#1a1a1a" strokeWidth="4" />
+          <circle cx="30" cy="30" r={r} fill="none" stroke={over ? '#ffffff' : '#555555'} strokeWidth="4"
+            strokeDasharray={C} strokeDashoffset={C * (1 - Math.min(pct, 1))}
             strokeLinecap="round" style={{ transition: 'stroke-dashoffset 0.5s' }} />
         </svg>
-        <div style={{ position: 'absolute', inset: 0, display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '10px', color: '#7AABCC' }}>
+        <div style={{ position: 'absolute', inset: 0, display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '10px', color: over ? '#ffffff' : '#666' }}>
           {Math.round(pct * 100)}%
         </div>
       </div>
       <div style={{ textAlign: 'center' }}>
-        <div style={{ fontSize: '11px', fontWeight: 300, color: '#7AABCC' }}>{value}<span style={{ color: '#1E4060' }}>/{max}</span></div>
-        <div style={{ fontSize: '9px', letterSpacing: '0.08em', color: '#1E4060', textTransform: 'uppercase' }}>{label}</div>
+        <div style={{ fontSize: '11px', fontWeight: 300, color: '#aaa' }}>{value}<span style={{ color: '#333' }}>/{max}</span></div>
+        <div style={{ fontSize: '9px', letterSpacing: '0.1em', color: '#444', textTransform: 'uppercase' }}>{label}</div>
       </div>
     </div>
   )
@@ -107,21 +108,21 @@ export default function NutritionCard() {
 
   return (
     <>
-      <div style={{ background: '#071E30', borderRadius: '8px', padding: '18px', border: '0.5px solid #0A2840' }}>
+      <div style={{ background: '#111111', borderRadius: '10px', padding: '18px', border: '1px solid #1a1a1a' }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: '7px', marginBottom: '14px' }}>
-          <div style={{ width: '4px', height: '4px', borderRadius: '50%', background: '#5DCAA5' }} />
-          <span style={{ fontSize: '9px', letterSpacing: '0.18em', color: '#378ADD', textTransform: 'uppercase' }}>Nutrition</span>
+          <div style={{ width: '5px', height: '5px', borderRadius: '50%', background: '#ffffff' }} />
+          <span style={{ fontSize: '10px', letterSpacing: '0.14em', color: '#ffffff', textTransform: 'uppercase', fontWeight: 700 }}>Nutrition</span>
           <div style={{ marginLeft: 'auto', display: 'flex', gap: '8px', alignItems: 'center' }}>
-            <button onClick={loadHistory} style={{ background: 'none', border: 'none', color: '#1E4060', cursor: 'pointer', fontSize: '12px' }}>↗</button>
-            <button onClick={() => setShowManual(v => !v)} style={{ background: 'none', border: 'none', color: '#1E4060', cursor: 'pointer', fontSize: '16px', lineHeight: 1 }}>+</button>
+            <button onClick={loadHistory} style={{ background: 'none', border: 'none', color: '#444', cursor: 'pointer', fontSize: '13px' }}>↗</button>
+            <button onClick={() => setShowManual(v => !v)} style={{ background: 'none', border: 'none', color: '#555', cursor: 'pointer', fontSize: '18px', lineHeight: 1 }}>+</button>
             <button
               onClick={recording ? stopRecording : startRecording}
               disabled={transcribing || saving}
               style={{
-                background: recording ? '#0C2E50' : 'transparent',
-                border: recording ? '0.5px solid #185FA5' : 'none',
-                borderRadius: '4px', padding: '3px 6px',
-                color: recording ? '#378ADD' : '#1E4060', cursor: 'pointer', fontSize: '12px',
+                background: recording ? '#ffffff' : 'transparent',
+                border: recording ? 'none' : '1px solid #222',
+                borderRadius: '4px', padding: '3px 7px',
+                color: recording ? '#000' : '#555', cursor: 'pointer', fontSize: '12px',
               }}
             >
               {transcribing || saving ? '…' : recording ? '⏹' : '🎙'}
@@ -134,15 +135,15 @@ export default function NutritionCard() {
             <input
               autoFocus value={manualDesc} onChange={e => setManualDesc(e.target.value)}
               placeholder="e.g. 2 eggs, avocado toast, coffee"
-              style={{ background: '#040F1C', border: '0.5px solid #0A2840', borderRadius: '5px', padding: '7px 10px', fontSize: '11px', color: '#7AABCC', outline: 'none', width: '100%' }}
+              style={{ background: '#0a0a0a', border: '1px solid #222', borderRadius: '6px', padding: '7px 10px', fontSize: '11px', color: '#ffffff', outline: 'none', width: '100%' }}
             />
             <div style={{ display: 'flex', gap: '6px' }}>
               <select value={manualMeal} onChange={e => setManualMeal(e.target.value)}
-                style={{ flex: 1, background: '#040F1C', border: '0.5px solid #0A2840', borderRadius: '5px', padding: '7px 8px', fontSize: '11px', color: '#7AABCC', outline: 'none' }}>
+                style={{ flex: 1, background: '#0a0a0a', border: '1px solid #222', borderRadius: '6px', padding: '7px 8px', fontSize: '11px', color: '#ffffff', outline: 'none' }}>
                 {['breakfast', 'lunch', 'dinner', 'snack'].map(m => <option key={m} value={m}>{m}</option>)}
               </select>
               <button type="submit" disabled={saving}
-                style={{ background: '#0F6E56', borderRadius: '5px', padding: '6px 12px', fontSize: '11px', color: '#9FE1CB', border: 'none', cursor: 'pointer', opacity: saving ? 0.5 : 1 }}>
+                style={{ background: '#ffffff', borderRadius: '6px', padding: '6px 12px', fontSize: '11px', color: '#000', border: 'none', cursor: 'pointer', fontWeight: 700, opacity: saving ? 0.5 : 1 }}>
                 {saving ? '…' : 'Log'}
               </button>
             </div>
@@ -150,39 +151,39 @@ export default function NutritionCard() {
         )}
 
         {loading ? (
-          <span style={{ fontSize: '11px', color: '#1E4060' }}>Loading…</span>
+          <span style={{ fontSize: '11px', color: '#333' }}>Loading…</span>
         ) : (
           <div style={{ display: 'flex', justifyContent: 'space-between' }}>
-            <Ring value={totals.calories} max={GOALS.calories} label="kcal" color="#5DCAA5" />
-            <Ring value={totals.protein} max={GOALS.protein} label="protein" color="#378ADD" />
-            <Ring value={totals.carbs} max={GOALS.carbs} label="carbs" color="#1D9E75" />
-            <Ring value={totals.fat} max={GOALS.fat} label="fat" color="#EF9F27" />
+            <Ring value={totals.calories} max={GOALS.calories} label="kcal" />
+            <Ring value={totals.protein} max={GOALS.protein} label="protein" />
+            <Ring value={totals.carbs} max={GOALS.carbs} label="carbs" />
+            <Ring value={totals.fat} max={GOALS.fat} label="fat" />
           </div>
         )}
       </div>
 
-      <Drawer open={showHistory} onClose={() => setShowHistory(false)} title="Nutrition History" dotColor="#5DCAA5">
-        <div style={{ fontSize: '9px', letterSpacing: '0.08em', color: '#1E4060', textTransform: 'uppercase', marginBottom: '12px' }}>7-Day Macro Trends</div>
+      <Drawer open={showHistory} onClose={() => setShowHistory(false)} title="Nutrition History" dotColor="#ffffff">
+        <div style={{ fontSize: '10px', letterSpacing: '0.1em', color: '#444', textTransform: 'uppercase', marginBottom: '12px' }}>7-Day Macro Trends</div>
         <div style={{ height: '160px', marginBottom: '16px' }}>
           <ResponsiveContainer width="100%" height="100%">
             <LineChart data={historyData} margin={{ top: 5, right: 5, bottom: 0, left: 0 }}>
-              <XAxis dataKey="date" tick={{ fontSize: 9, fill: '#1E4060' }} tickFormatter={d => d.slice(5)} />
+              <XAxis dataKey="date" tick={{ fontSize: 9, fill: '#444' }} tickFormatter={d => d.slice(5)} />
               <YAxis hide />
-              <Tooltip contentStyle={{ background: '#071E30', border: '0.5px solid #0A2840', borderRadius: '5px', fontSize: '11px' }}
-                labelStyle={{ color: '#378ADD' }} />
-              <Line type="monotone" dataKey="calories" stroke="#5DCAA5" strokeWidth={1.5} dot={false} name="kcal" />
-              <Line type="monotone" dataKey="protein" stroke="#378ADD" strokeWidth={1.5} dot={false} name="protein" />
-              <Line type="monotone" dataKey="carbs" stroke="#1D9E75" strokeWidth={1.5} dot={false} name="carbs" />
+              <Tooltip contentStyle={{ background: '#111', border: '1px solid #222', borderRadius: '6px', fontSize: '11px' }}
+                labelStyle={{ color: '#fff' }} />
+              <Line type="monotone" dataKey="calories" stroke="#ffffff" strokeWidth={1.5} dot={false} name="kcal" />
+              <Line type="monotone" dataKey="protein" stroke="#888" strokeWidth={1.5} dot={false} name="protein" />
+              <Line type="monotone" dataKey="carbs" stroke="#555" strokeWidth={1.5} dot={false} name="carbs" />
             </LineChart>
           </ResponsiveContainer>
         </div>
         <div style={{ display: 'flex', gap: '16px', flexWrap: 'wrap' }}>
-          {[{ key: 'calories', label: 'Avg kcal', color: '#5DCAA5' }, { key: 'protein', label: 'Avg protein', color: '#378ADD' }, { key: 'carbs', label: 'Avg carbs', color: '#1D9E75' }].map(({ key, label, color }) => {
+          {[{ key: 'calories', label: 'Avg kcal' }, { key: 'protein', label: 'Avg protein' }, { key: 'carbs', label: 'Avg carbs' }].map(({ key, label }) => {
             const avg = historyData.length > 0 ? Math.round(historyData.reduce((s, d) => s + (d[key as keyof typeof d] as number), 0) / historyData.length) : 0
             return (
               <div key={key}>
-                <div style={{ fontSize: '16px', fontWeight: 300, color }}>{avg}</div>
-                <div style={{ fontSize: '9px', color: '#1E4060', letterSpacing: '0.08em', textTransform: 'uppercase' }}>{label}</div>
+                <div style={{ fontSize: '16px', fontWeight: 300, color: '#ffffff' }}>{avg}</div>
+                <div style={{ fontSize: '9px', color: '#444', letterSpacing: '0.1em', textTransform: 'uppercase' }}>{label}</div>
               </div>
             )
           })}

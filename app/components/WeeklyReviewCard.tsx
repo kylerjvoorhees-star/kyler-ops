@@ -15,9 +15,9 @@ function formatReview(content: string) {
   })
   return result.split('§§').map((part, i) => {
     if (sections.includes(part)) {
-      return <span key={i} style={{ color: '#378ADD', fontSize: '9px', letterSpacing: '0.12em', textTransform: 'uppercase', display: 'block', marginTop: i > 0 ? '12px' : '0', marginBottom: '4px' }}>{part}</span>
+      return <span key={i} style={{ color: '#ffffff', fontSize: '9px', letterSpacing: '0.14em', textTransform: 'uppercase', display: 'block', marginTop: i > 0 ? '12px' : '0', marginBottom: '4px', fontWeight: 700 }}>{part}</span>
     }
-    return <span key={i} style={{ fontSize: '12px', color: '#7AABCC', lineHeight: 1.8 }}>{part}</span>
+    return <span key={i} style={{ fontSize: '12px', color: '#888', lineHeight: 1.8 }}>{part}</span>
   })
 }
 
@@ -46,57 +46,57 @@ export default function WeeklyReviewCard() {
   }
 
   return (
-    <div style={{ background: '#071E30', borderRadius: '8px', padding: '18px', border: '0.5px solid #0A2840' }}>
+    <div style={{ background: '#111111', borderRadius: '10px', padding: '18px', border: '1px solid #1a1a1a' }}>
       <div style={{ display: 'flex', alignItems: 'center', gap: '7px', marginBottom: '14px' }}>
-        <div style={{ width: '4px', height: '4px', borderRadius: '50%', background: '#378ADD' }} />
-        <span style={{ fontSize: '9px', letterSpacing: '0.18em', color: '#378ADD', textTransform: 'uppercase' }}>Weekly Review</span>
-        <span style={{ fontSize: '10px', color: '#1E4060', marginLeft: '4px' }}>
+        <div style={{ width: '5px', height: '5px', borderRadius: '50%', background: '#ffffff' }} />
+        <span style={{ fontSize: '10px', letterSpacing: '0.14em', color: '#ffffff', textTransform: 'uppercase', fontWeight: 700 }}>Weekly Review</span>
+        <span style={{ fontSize: '10px', color: '#444', marginLeft: '4px' }}>
           {weekStart} — {weekEnd}
         </span>
         {review && (
           <button onClick={generate} disabled={generating}
-            style={{ marginLeft: 'auto', background: '#0C2E50', border: '0.5px solid #185FA5', borderRadius: '5px', padding: '4px 10px', fontSize: '10px', color: '#378ADD', cursor: 'pointer', opacity: generating ? 0.6 : 1 }}>
+            style={{ marginLeft: 'auto', background: 'transparent', border: '1px solid #222', borderRadius: '6px', padding: '4px 10px', fontSize: '10px', color: '#555', cursor: 'pointer', fontWeight: 600, opacity: generating ? 0.5 : 1 }}>
             {generating ? 'Regenerating…' : '↺ Refresh'}
           </button>
         )}
       </div>
 
       {loading ? (
-        <span style={{ fontSize: '11px', color: '#1E4060' }}>Loading…</span>
+        <span style={{ fontSize: '11px', color: '#333' }}>Loading…</span>
       ) : review ? (
         <div style={{ display: 'grid', gridTemplateColumns: '2fr 1fr', gap: '24px' }}>
           <div style={{ lineHeight: 1.8 }}>{formatReview(review.content)}</div>
           <div>
             {review.highlights && review.highlights.length > 0 && (
               <div style={{ marginBottom: '16px' }}>
-                <div style={{ fontSize: '9px', letterSpacing: '0.12em', color: '#1D9E75', textTransform: 'uppercase', marginBottom: '8px' }}>Highlights</div>
+                <div style={{ fontSize: '9px', letterSpacing: '0.14em', color: '#ffffff', textTransform: 'uppercase', marginBottom: '8px', fontWeight: 700 }}>Highlights</div>
                 {review.highlights.map((h, i) => (
                   <div key={i} style={{ display: 'flex', gap: '8px', marginBottom: '6px' }}>
-                    <div style={{ width: '3px', height: '3px', borderRadius: '50%', background: '#1D9E75', marginTop: '5px', flexShrink: 0 }} />
-                    <span style={{ fontSize: '11px', color: '#7AABCC' }}>{h}</span>
+                    <div style={{ width: '3px', height: '3px', borderRadius: '50%', background: '#444', marginTop: '5px', flexShrink: 0 }} />
+                    <span style={{ fontSize: '11px', color: '#888' }}>{h}</span>
                   </div>
                 ))}
               </div>
             )}
             {review.focus_next_week && (
-              <div style={{ background: '#040F1C', border: '0.5px solid #0A2840', borderRadius: '5px', padding: '12px' }}>
-                <div style={{ fontSize: '9px', letterSpacing: '0.12em', color: '#378ADD', textTransform: 'uppercase', marginBottom: '6px' }}>Next Week Focus</div>
-                <div style={{ fontSize: '12px', color: '#7AABCC', lineHeight: 1.7 }}>{review.focus_next_week}</div>
+              <div style={{ background: '#0a0a0a', border: '1px solid #1a1a1a', borderRadius: '7px', padding: '12px' }}>
+                <div style={{ fontSize: '9px', letterSpacing: '0.14em', color: '#ffffff', textTransform: 'uppercase', marginBottom: '6px', fontWeight: 700 }}>Next Week Focus</div>
+                <div style={{ fontSize: '12px', color: '#888', lineHeight: 1.7 }}>{review.focus_next_week}</div>
               </div>
             )}
-            <div style={{ marginTop: '12px', fontSize: '10px', color: '#0E2030' }}>
+            <div style={{ marginTop: '12px', fontSize: '10px', color: '#333' }}>
               Generated {format(new Date(review.generated_at), 'MMM d, h:mm a')}
             </div>
           </div>
         </div>
       ) : (
         <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-start', gap: '10px' }}>
-          <span style={{ fontSize: '12px', color: '#1E4060' }}>
-            No review generated for this week yet. Claude will synthesize your habits, tasks, nutrition, finance, and journal data.
+          <span style={{ fontSize: '12px', color: '#444' }}>
+            No review for this week yet. Claude synthesizes your habits, tasks, nutrition, finance, and journal data.
           </span>
           <button onClick={generate} disabled={generating}
-            style={{ background: '#0C2E50', border: '0.5px solid #185FA5', borderRadius: '5px', padding: '7px 16px', fontSize: '11px', color: '#378ADD', cursor: 'pointer', opacity: generating ? 0.6 : 1 }}>
-            {generating ? 'Generating — takes ~10 seconds…' : '✦ Generate This Week\'s Review'}
+            style={{ background: '#ffffff', border: 'none', borderRadius: '6px', padding: '8px 18px', fontSize: '11px', color: '#000', cursor: 'pointer', fontWeight: 700, opacity: generating ? 0.5 : 1 }}>
+            {generating ? 'Generating — ~10 seconds…' : "✦ Generate This Week's Review"}
           </button>
         </div>
       )}

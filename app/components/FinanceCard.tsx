@@ -1,12 +1,12 @@
 'use client'
 
 import { useState, useEffect } from 'react'
-import Drawer from './Drawer'
 import {
   AreaChart, Area, BarChart, Bar,
   XAxis, YAxis, Tooltip, ResponsiveContainer, ReferenceLine,
 } from 'recharts'
 import { format } from 'date-fns'
+import Drawer from './Drawer'
 
 interface Summary { income: number; expenses: number; net: number; savings_rate: number; daily: { date: string; net: number }[] }
 
@@ -45,51 +45,51 @@ export default function FinanceCard() {
 
   return (
     <>
-      <div style={{ background: '#071E30', borderRadius: '8px', padding: '18px', border: '0.5px solid #0A2840' }}>
+      <div style={{ background: '#111111', borderRadius: '10px', padding: '18px', border: '1px solid #1a1a1a' }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: '7px', marginBottom: '14px' }}>
-          <div style={{ width: '4px', height: '4px', borderRadius: '50%', background: '#1D9E75' }} />
-          <span style={{ fontSize: '9px', letterSpacing: '0.18em', color: '#378ADD', textTransform: 'uppercase' }}>Finance Pulse</span>
-          <span style={{ fontSize: '10px', color: '#1E4060', marginLeft: '4px' }}>
+          <div style={{ width: '5px', height: '5px', borderRadius: '50%', background: '#ffffff' }} />
+          <span style={{ fontSize: '10px', letterSpacing: '0.14em', color: '#ffffff', textTransform: 'uppercase', fontWeight: 700 }}>Finance Pulse</span>
+          <span style={{ fontSize: '10px', color: '#444', marginLeft: '4px' }}>
             {format(new Date(), 'MMM yyyy')}
           </span>
           <div style={{ marginLeft: 'auto', display: 'flex', gap: '8px', alignItems: 'center' }}>
-            <button onClick={() => setShowHistory(true)} style={{ background: 'none', border: 'none', color: '#1E4060', cursor: 'pointer', fontSize: '12px' }}>↗</button>
-            <button onClick={() => setShowAdd(v => !v)} style={{ background: 'none', border: 'none', color: '#1E4060', cursor: 'pointer', fontSize: '16px', lineHeight: 1 }}>+</button>
+            <button onClick={() => setShowHistory(true)} style={{ background: 'none', border: 'none', color: '#444', cursor: 'pointer', fontSize: '13px' }}>↗</button>
+            <button onClick={() => setShowAdd(v => !v)} style={{ background: 'none', border: 'none', color: '#555', cursor: 'pointer', fontSize: '18px', lineHeight: 1 }}>+</button>
           </div>
         </div>
 
         {showAdd && (
           <form onSubmit={addEntry} style={{ display: 'grid', gridTemplateColumns: '2fr 1fr 1fr auto', gap: '6px', marginBottom: '14px' }}>
             <input placeholder="Description" value={form.description} onChange={e => setForm({ ...form, description: e.target.value })}
-              style={{ background: '#040F1C', border: '0.5px solid #0A2840', borderRadius: '5px', padding: '7px 10px', fontSize: '11px', color: '#7AABCC', outline: 'none' }} />
+              style={{ background: '#0a0a0a', border: '1px solid #222', borderRadius: '6px', padding: '7px 10px', fontSize: '11px', color: '#fff', outline: 'none' }} />
             <input type="number" placeholder="Amount" value={form.amount} onChange={e => setForm({ ...form, amount: e.target.value })}
-              style={{ background: '#040F1C', border: '0.5px solid #0A2840', borderRadius: '5px', padding: '7px 10px', fontSize: '11px', color: '#7AABCC', outline: 'none' }} />
+              style={{ background: '#0a0a0a', border: '1px solid #222', borderRadius: '6px', padding: '7px 10px', fontSize: '11px', color: '#fff', outline: 'none' }} />
             <select value={form.type} onChange={e => setForm({ ...form, type: e.target.value as 'income' | 'expense' })}
-              style={{ background: '#040F1C', border: '0.5px solid #0A2840', borderRadius: '5px', padding: '7px 8px', fontSize: '11px', color: '#7AABCC', outline: 'none' }}>
+              style={{ background: '#0a0a0a', border: '1px solid #222', borderRadius: '6px', padding: '7px 8px', fontSize: '11px', color: '#fff', outline: 'none' }}>
               <option value="expense">Expense</option>
               <option value="income">Income</option>
             </select>
             <button type="submit" disabled={saving}
-              style={{ background: '#0F6E56', borderRadius: '5px', padding: '6px 12px', fontSize: '11px', color: '#9FE1CB', border: 'none', cursor: 'pointer', opacity: saving ? 0.5 : 1 }}>
+              style={{ background: '#ffffff', borderRadius: '6px', padding: '6px 12px', fontSize: '11px', color: '#000', border: 'none', cursor: 'pointer', fontWeight: 700, opacity: saving ? 0.5 : 1 }}>
               Log
             </button>
           </form>
         )}
 
         {loading ? (
-          <span style={{ fontSize: '11px', color: '#1E4060' }}>Loading…</span>
+          <span style={{ fontSize: '11px', color: '#333' }}>Loading…</span>
         ) : summary ? (
           <div style={{ display: 'grid', gridTemplateColumns: '200px 1fr', gap: '20px', alignItems: 'center' }}>
-            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '10px' }}>
+            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '8px' }}>
               {[
-                { label: 'INCOME', val: summary.income, color: '#5DCAA5' },
-                { label: 'EXPENSES', val: summary.expenses, color: '#D85A30' },
-                { label: 'NET', val: summary.net, color: summary.net >= 0 ? '#5DCAA5' : '#D85A30' },
-                { label: 'SAVINGS', val: `${summary.savings_rate}%`, color: '#378ADD', raw: true },
-              ].map(({ label, val, color, raw }) => (
-                <div key={label} style={{ background: '#040F1C', borderRadius: '5px', padding: '10px', border: '0.5px solid #0A2840' }}>
-                  <div style={{ fontSize: '16px', fontWeight: 300, color }}>{raw ? val : fmt(val as number)}</div>
-                  <div style={{ fontSize: '9px', letterSpacing: '0.08em', color: '#1E4060', textTransform: 'uppercase', marginTop: '3px' }}>{label}</div>
+                { label: 'INCOME', val: summary.income, pos: true },
+                { label: 'EXPENSES', val: summary.expenses, pos: false },
+                { label: 'NET', val: summary.net, pos: summary.net >= 0 },
+                { label: 'SAVINGS', val: `${summary.savings_rate}%`, raw: true },
+              ].map(({ label, val, pos, raw }) => (
+                <div key={label} style={{ background: '#0a0a0a', borderRadius: '7px', padding: '10px', border: '1px solid #1a1a1a' }}>
+                  <div style={{ fontSize: '16px', fontWeight: 300, color: raw ? '#aaa' : pos ? '#ffffff' : '#888' }}>{raw ? val : fmt(val as number)}</div>
+                  <div style={{ fontSize: '9px', letterSpacing: '0.1em', color: '#444', textTransform: 'uppercase', marginTop: '3px' }}>{label}</div>
                 </div>
               ))}
             </div>
@@ -99,46 +99,46 @@ export default function FinanceCard() {
                 <AreaChart data={summary.daily} margin={{ top: 5, right: 5, bottom: 0, left: 0 }}>
                   <defs>
                     <linearGradient id="netGrad" x1="0" y1="0" x2="0" y2="1">
-                      <stop offset="5%" stopColor="#1D9E75" stopOpacity={0.25} />
-                      <stop offset="95%" stopColor="#1D9E75" stopOpacity={0} />
+                      <stop offset="5%" stopColor="#ffffff" stopOpacity={0.15} />
+                      <stop offset="95%" stopColor="#ffffff" stopOpacity={0} />
                     </linearGradient>
                   </defs>
-                  <XAxis dataKey="date" tick={{ fontSize: 9, fill: '#1E4060' }} tickFormatter={v => format(new Date(v + 'T12:00:00'), 'd')} />
+                  <XAxis dataKey="date" tick={{ fontSize: 9, fill: '#444' }} tickFormatter={v => format(new Date(v + 'T12:00:00'), 'd')} />
                   <YAxis hide />
-                  <Tooltip contentStyle={{ background: '#071E30', border: '0.5px solid #0A2840', borderRadius: '5px', fontSize: '11px' }}
+                  <Tooltip contentStyle={{ background: '#111', border: '1px solid #222', borderRadius: '6px', fontSize: '11px' }}
                     formatter={(v) => [fmt(Number(v ?? 0)), 'Net']}
                     labelFormatter={l => format(new Date(l + 'T12:00:00'), 'MMM d')} />
-                  <ReferenceLine y={0} stroke="#0A2840" />
-                  <Area type="monotone" dataKey="net" stroke="#1D9E75" strokeWidth={1.5} fill="url(#netGrad)" dot={false} />
+                  <ReferenceLine y={0} stroke="#222" />
+                  <Area type="monotone" dataKey="net" stroke="#ffffff" strokeWidth={1.5} fill="url(#netGrad)" dot={false} />
                 </AreaChart>
               </ResponsiveContainer>
             </div>
           </div>
         ) : (
-          <span style={{ fontSize: '12px', color: '#1E4060' }}>No financial data yet. Log a transaction to begin.</span>
+          <span style={{ fontSize: '12px', color: '#333' }}>No financial data yet. Log a transaction to begin.</span>
         )}
       </div>
 
-      <Drawer open={showHistory} onClose={() => setShowHistory(false)} title="Finance History" dotColor="#1D9E75">
+      <Drawer open={showHistory} onClose={() => setShowHistory(false)} title="Finance History" dotColor="#ffffff">
         {summary && (
           <>
-            <div style={{ fontSize: '9px', letterSpacing: '0.08em', color: '#1E4060', textTransform: 'uppercase', marginBottom: '12px' }}>Daily Net — This Month</div>
+            <div style={{ fontSize: '10px', letterSpacing: '0.1em', color: '#444', textTransform: 'uppercase', marginBottom: '12px' }}>Daily Net — This Month</div>
             <div style={{ height: '140px', marginBottom: '16px' }}>
               <ResponsiveContainer width="100%" height="100%">
                 <BarChart data={summary.daily} margin={{ top: 0, right: 0, bottom: 0, left: 0 }}>
-                  <XAxis dataKey="date" tick={{ fontSize: 9, fill: '#1E4060' }} tickFormatter={d => format(new Date(d + 'T12:00:00'), 'd')} />
+                  <XAxis dataKey="date" tick={{ fontSize: 9, fill: '#444' }} tickFormatter={d => format(new Date(d + 'T12:00:00'), 'd')} />
                   <YAxis hide />
-                  <Tooltip contentStyle={{ background: '#071E30', border: '0.5px solid #0A2840', borderRadius: '5px', fontSize: '11px' }}
+                  <Tooltip contentStyle={{ background: '#111', border: '1px solid #222', borderRadius: '6px', fontSize: '11px' }}
                     formatter={(v) => [fmt(Number(v ?? 0)), 'Net']} />
-                  <Bar dataKey="net" fill="#185FA5" radius={[2, 2, 0, 0]} />
+                  <Bar dataKey="net" fill="#ffffff" radius={[2, 2, 0, 0]} />
                 </BarChart>
               </ResponsiveContainer>
             </div>
             <div style={{ display: 'flex', gap: '16px' }}>
-              {[{ label: 'MTD Income', val: summary.income, color: '#5DCAA5' }, { label: 'MTD Expenses', val: summary.expenses, color: '#D85A30' }].map(({ label, val, color }) => (
+              {[{ label: 'MTD Income', val: summary.income }, { label: 'MTD Expenses', val: summary.expenses }].map(({ label, val }) => (
                 <div key={label}>
-                  <div style={{ fontSize: '16px', fontWeight: 300, color }}>{fmt(val)}</div>
-                  <div style={{ fontSize: '9px', color: '#1E4060', letterSpacing: '0.08em', textTransform: 'uppercase' }}>{label}</div>
+                  <div style={{ fontSize: '16px', fontWeight: 300, color: '#ffffff' }}>{fmt(val)}</div>
+                  <div style={{ fontSize: '9px', color: '#444', letterSpacing: '0.1em', textTransform: 'uppercase' }}>{label}</div>
                 </div>
               ))}
             </div>

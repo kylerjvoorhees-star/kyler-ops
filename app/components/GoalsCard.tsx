@@ -9,10 +9,7 @@ interface Goal {
   progress: number; status: string; milestones?: Milestone[]
 }
 
-const CATEGORY_COLORS: Record<string, string> = {
-  health: '#5DCAA5', career: '#378ADD', finance: '#1D9E75',
-  relationships: '#EF9F27', personal: '#185FA5',
-}
+const CATEGORIES = ['health', 'career', 'finance', 'relationships', 'personal']
 
 export default function GoalsCard() {
   const [goals, setGoals] = useState<Goal[]>([])
@@ -89,68 +86,64 @@ export default function GoalsCard() {
   }
 
   return (
-    <div style={{ background: '#071E30', borderRadius: '8px', padding: '18px', border: '0.5px solid #0A2840' }}>
+    <div style={{ background: '#111111', borderRadius: '10px', padding: '18px', border: '1px solid #1a1a1a' }}>
       <div style={{ display: 'flex', alignItems: 'center', gap: '7px', marginBottom: '14px' }}>
-        <div style={{ width: '4px', height: '4px', borderRadius: '50%', background: '#1D9E75' }} />
-        <span style={{ fontSize: '9px', letterSpacing: '0.18em', color: '#378ADD', textTransform: 'uppercase' }}>Goals</span>
-        <button onClick={() => setShowAdd(v => !v)} style={{ marginLeft: 'auto', background: 'none', border: 'none', color: '#1E4060', cursor: 'pointer', fontSize: '16px', lineHeight: 1 }}>+</button>
+        <div style={{ width: '5px', height: '5px', borderRadius: '50%', background: '#ffffff' }} />
+        <span style={{ fontSize: '10px', letterSpacing: '0.14em', color: '#ffffff', textTransform: 'uppercase', fontWeight: 700 }}>Goals</span>
+        <button onClick={() => setShowAdd(v => !v)} style={{ marginLeft: 'auto', background: 'none', border: 'none', color: '#555', cursor: 'pointer', fontSize: '18px', lineHeight: 1 }}>+</button>
       </div>
 
       {showAdd && (
-        <form onSubmit={addGoal} style={{ display: 'flex', flexDirection: 'column', gap: '6px', marginBottom: '14px' }}>
+        <form onSubmit={addGoal} style={{ display: 'flex', flexDirection: 'column', gap: '6px', marginBottom: '14px', background: '#0a0a0a', padding: '12px', borderRadius: '8px', border: '1px solid #1a1a1a' }}>
           <input value={form.title} onChange={e => setForm({ ...form, title: e.target.value })} placeholder="Goal title"
-            style={{ background: '#040F1C', border: '0.5px solid #0A2840', borderRadius: '5px', padding: '7px 10px', fontSize: '11px', color: '#7AABCC', outline: 'none', width: '100%' }} autoFocus />
+            style={{ background: '#111', border: '1px solid #222', borderRadius: '6px', padding: '7px 10px', fontSize: '11px', color: '#ffffff', outline: 'none', width: '100%' }} autoFocus />
           <div style={{ display: 'flex', gap: '6px' }}>
             <select value={form.category} onChange={e => setForm({ ...form, category: e.target.value })}
-              style={{ flex: 1, background: '#040F1C', border: '0.5px solid #0A2840', borderRadius: '5px', padding: '7px 8px', fontSize: '11px', color: '#7AABCC', outline: 'none' }}>
-              {['health', 'career', 'finance', 'relationships', 'personal'].map(c => <option key={c} value={c}>{c}</option>)}
+              style={{ flex: 1, background: '#111', border: '1px solid #222', borderRadius: '6px', padding: '7px 8px', fontSize: '11px', color: '#ffffff', outline: 'none' }}>
+              {CATEGORIES.map(c => <option key={c} value={c}>{c}</option>)}
             </select>
             <input type="date" value={form.target_date} onChange={e => setForm({ ...form, target_date: e.target.value })}
-              style={{ flex: 1, background: '#040F1C', border: '0.5px solid #0A2840', borderRadius: '5px', padding: '7px 8px', fontSize: '11px', color: form.target_date ? '#7AABCC' : '#1E4060', outline: 'none' }} />
+              style={{ flex: 1, background: '#111', border: '1px solid #222', borderRadius: '6px', padding: '7px 8px', fontSize: '11px', color: form.target_date ? '#ffffff' : '#444', outline: 'none' }} />
           </div>
           <button type="submit" disabled={adding}
-            style={{ background: '#0F6E56', borderRadius: '5px', padding: '6px 14px', fontSize: '11px', color: '#9FE1CB', border: 'none', cursor: 'pointer', opacity: adding ? 0.5 : 1 }}>
+            style={{ background: '#ffffff', borderRadius: '6px', padding: '6px 14px', fontSize: '11px', color: '#000', border: 'none', cursor: 'pointer', fontWeight: 700, opacity: adding ? 0.5 : 1 }}>
             Add Goal
           </button>
         </form>
       )}
 
-      <div style={{ display: 'flex', flexDirection: 'column', gap: '0', maxHeight: '280px', overflowY: 'auto' }}>
+      <div style={{ display: 'flex', flexDirection: 'column' }}>
         {loading ? (
-          <span style={{ fontSize: '11px', color: '#1E4060' }}>Loading…</span>
+          <span style={{ fontSize: '11px', color: '#333' }}>Loading…</span>
         ) : goals.length === 0 ? (
-          <span style={{ fontSize: '12px', color: '#1E4060' }}>No goals yet. Add one to start tracking.</span>
+          <span style={{ fontSize: '12px', color: '#333' }}>No goals yet. Add one to start tracking.</span>
         ) : goals.map((g, i) => (
-          <div key={g.id} style={{ borderBottom: i < goals.length - 1 ? '0.5px solid #0A2840' : 'none' }}>
+          <div key={g.id} style={{ borderBottom: i < goals.length - 1 ? '1px solid #1a1a1a' : 'none' }}>
             <button onClick={() => toggleExpand(g.id)} style={{
               display: 'flex', flexDirection: 'column', gap: '7px', padding: '10px 0',
               background: 'none', border: 'none', cursor: 'pointer', textAlign: 'left', width: '100%',
             }}>
               <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', width: '100%' }}>
-                <span style={{ fontSize: '12px', color: '#7AABCC' }}>{g.title}</span>
+                <span style={{ fontSize: '12px', color: '#aaaaaa' }}>{g.title}</span>
                 <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
                   {g.category && (
                     <span style={{
                       fontSize: '9px', padding: '2px 7px', borderRadius: '20px',
-                      background: '#040F1C', color: CATEGORY_COLORS[g.category] ?? '#378ADD',
-                      border: `0.5px solid ${CATEGORY_COLORS[g.category] ?? '#378ADD'}22`,
+                      background: '#1a1a1a', color: '#555', fontWeight: 600, letterSpacing: '0.08em',
                     }}>{g.category}</span>
                   )}
                   {g.target_date && (
-                    <span style={{ fontSize: '10px', color: '#1E4060' }}>
+                    <span style={{ fontSize: '10px', color: '#444' }}>
                       {format(new Date(g.target_date + 'T12:00:00'), 'MMM d')}
                     </span>
                   )}
-                  <span style={{ fontSize: '10px', color: expanded === g.id ? '#378ADD' : '#1E4060' }}>
-                    {expanded === g.id ? '▲' : '▼'}
-                  </span>
+                  <span style={{ fontSize: '10px', color: '#333' }}>{expanded === g.id ? '▲' : '▼'}</span>
                 </div>
               </div>
-              {/* Progress bar */}
-              <div style={{ width: '100%', height: '3px', background: '#0A2840', borderRadius: '2px', overflow: 'hidden' }}>
-                <div style={{ height: '100%', width: `${g.progress}%`, background: '#1D9E75', borderRadius: '2px', transition: 'width 0.4s' }} />
+              <div style={{ width: '100%', height: '2px', background: '#1a1a1a', borderRadius: '2px', overflow: 'hidden' }}>
+                <div style={{ height: '100%', width: `${g.progress}%`, background: '#ffffff', borderRadius: '2px', transition: 'width 0.4s' }} />
               </div>
-              <div style={{ fontSize: '10px', color: '#1E4060' }}>{g.progress}%</div>
+              <div style={{ fontSize: '10px', color: '#444' }}>{g.progress}%</div>
             </button>
 
             {/* Expanded milestones */}
@@ -159,38 +152,38 @@ export default function GoalsCard() {
                 {(g.milestones ?? []).map(m => (
                   <div key={m.id} style={{
                     display: 'flex', alignItems: 'center', justifyContent: 'space-between',
-                    padding: '7px 0', borderBottom: '0.5px solid #0A2840',
+                    padding: '7px 0', borderBottom: '1px solid #1a1a1a',
                   }}>
                     <div style={{ display: 'flex', alignItems: 'center', gap: '9px' }}>
                       <button onClick={() => toggleMilestone(g.id, m.id)} style={{
-                        width: '13px', height: '13px', borderRadius: '3px', cursor: 'pointer',
-                        border: m.completed ? '1px solid #185FA5' : '0.5px solid #0A2840',
-                        background: m.completed ? '#0C2E50' : 'transparent', flexShrink: 0,
+                        width: '14px', height: '14px', borderRadius: '3px', cursor: 'pointer',
+                        border: m.completed ? 'none' : '1px solid #333',
+                        background: m.completed ? '#ffffff' : 'transparent', flexShrink: 0,
                         display: 'flex', alignItems: 'center', justifyContent: 'center',
                       }}>
-                        {m.completed && <div style={{ width: '5px', height: '5px', background: '#5DCAA5', borderRadius: '1px' }} />}
+                        {m.completed && <span style={{ color: '#000', fontSize: '9px' }}>✓</span>}
                       </button>
-                      <span style={{ fontSize: '11px', color: m.completed ? '#1E4060' : '#7AABCC', textDecoration: m.completed ? 'line-through' : 'none' }}>{m.title}</span>
+                      <span style={{ fontSize: '11px', color: m.completed ? '#444' : '#aaa', textDecoration: m.completed ? 'line-through' : 'none' }}>{m.title}</span>
                     </div>
-                    {m.due_date && <span style={{ fontSize: '10px', color: '#0E2030' }}>{format(new Date(m.due_date + 'T12:00:00'), 'MMM d')}</span>}
+                    {m.due_date && <span style={{ fontSize: '10px', color: '#444' }}>{format(new Date(m.due_date + 'T12:00:00'), 'MMM d')}</span>}
                   </div>
                 ))}
 
                 {/* Progress slider */}
                 <div style={{ marginTop: '10px', display: 'flex', alignItems: 'center', gap: '10px' }}>
-                  <span style={{ fontSize: '10px', color: '#1E4060' }}>Progress</span>
+                  <span style={{ fontSize: '10px', color: '#444' }}>Progress</span>
                   <input type="range" min="0" max="100" value={g.progress}
                     onChange={e => updateProgress(g.id, parseInt(e.target.value))}
-                    style={{ flex: 1, accentColor: '#1D9E75' }} />
-                  <span style={{ fontSize: '10px', color: '#5DCAA5' }}>{g.progress}%</span>
+                    style={{ flex: 1 }} />
+                  <span style={{ fontSize: '10px', color: '#aaa' }}>{g.progress}%</span>
                 </div>
 
                 {/* Add milestone */}
                 <form onSubmit={e => addMilestone(g.id, e)} style={{ display: 'flex', gap: '6px', marginTop: '8px' }}>
                   <input value={newMilestone} onChange={e => setNewMilestone(e.target.value)} placeholder="+ Add milestone"
-                    style={{ flex: 1, background: '#040F1C', border: '0.5px solid #0A2840', borderRadius: '5px', padding: '5px 8px', fontSize: '11px', color: '#7AABCC', outline: 'none' }} />
+                    style={{ flex: 1, background: '#0a0a0a', border: '1px solid #222', borderRadius: '6px', padding: '5px 8px', fontSize: '11px', color: '#ffffff', outline: 'none' }} />
                   <button type="submit" disabled={addingMilestone}
-                    style={{ background: '#0C2E50', border: '0.5px solid #185FA5', borderRadius: '5px', padding: '5px 10px', fontSize: '11px', color: '#378ADD', cursor: 'pointer' }}>
+                    style={{ background: '#ffffff', border: 'none', borderRadius: '6px', padding: '5px 10px', fontSize: '11px', color: '#000', cursor: 'pointer', fontWeight: 700 }}>
                     Add
                   </button>
                 </form>

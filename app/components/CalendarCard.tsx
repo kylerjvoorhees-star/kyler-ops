@@ -6,7 +6,15 @@ import { format } from 'date-fns'
 interface CalEvent { id: string; title: string; start_time: string; end_time?: string; event_type: string }
 
 const typeColors: Record<string, string> = {
-  work: '#185FA5', personal: '#1D9E75', health: '#5DCAA5',
+  work: '#ffffff',
+  personal: '#aaaaaa',
+  health: '#888888',
+}
+
+const typeDot: Record<string, string> = {
+  work: '#ffffff',
+  personal: '#888',
+  health: '#666',
 }
 
 export default function CalendarCard() {
@@ -17,6 +25,9 @@ export default function CalendarCard() {
   const [newTime, setNewTime] = useState('')
   const [newType, setNewType] = useState('personal')
   const [saving, setSaving] = useState(false)
+
+  const today = new Date()
+  const dateLabel = format(today, 'EEEE, MMM d')
 
   useEffect(() => { loadEvents() }, [])
 
@@ -31,65 +42,67 @@ export default function CalendarCard() {
     e.preventDefault()
     if (!newTitle.trim() || !newTime) return
     setSaving(true)
-    const today = format(new Date(), 'yyyy-MM-dd')
+    const todayStr = format(new Date(), 'yyyy-MM-dd')
     await fetch('/api/calendar/events', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ title: newTitle, start_time: `${today}T${newTime}:00`, event_type: newType }),
+      body: JSON.stringify({ title: newTitle, start_time: `${todayStr}T${newTime}:00`, event_type: newType }),
     }).catch(() => null)
     setNewTitle(''); setNewTime(''); setShowAdd(false); setSaving(false)
     await loadEvents()
   }
 
   return (
-    <div style={{ background: '#071E30', borderRadius: '8px', padding: '18px', border: '0.5px solid #0A2840' }}>
-      <div style={{ display: 'flex', alignItems: 'center', gap: '7px', marginBottom: '14px' }}>
-        <div style={{ width: '4px', height: '4px', borderRadius: '50%', background: '#378ADD' }} />
-        <span style={{ fontSize: '9px', letterSpacing: '0.18em', color: '#378ADD', textTransform: 'uppercase' }}>Calendar</span>
+    <div style={{ background: '#111111', borderRadius: '10px', padding: '18px', border: '1px solid #1a1a1a' }}>
+      <div style={{ display: 'flex', alignItems: 'center', gap: '7px', marginBottom: '4px' }}>
+        <div style={{ width: '5px', height: '5px', borderRadius: '50%', background: '#ffffff' }} />
+        <span style={{ fontSize: '10px', letterSpacing: '0.14em', color: '#ffffff', textTransform: 'uppercase', fontWeight: 700 }}>Calendar</span>
         <button
           onClick={() => setShowAdd(v => !v)}
-          style={{ marginLeft: 'auto', background: 'none', border: 'none', color: '#1E4060', cursor: 'pointer', fontSize: '16px', lineHeight: 1 }}
+          style={{ marginLeft: 'auto', background: 'none', border: 'none', color: '#555', cursor: 'pointer', fontSize: '18px', lineHeight: 1 }}
         >+</button>
       </div>
 
+      <div style={{ fontSize: '11px', color: '#444', marginBottom: '14px' }}>{dateLabel}</div>
+
       {showAdd && (
-        <form onSubmit={addEvent} style={{ display: 'flex', flexDirection: 'column', gap: '6px', marginBottom: '12px' }}>
+        <form onSubmit={addEvent} style={{ display: 'flex', flexDirection: 'column', gap: '6px', marginBottom: '12px', padding: '12px', background: '#0a0a0a', borderRadius: '8px', border: '1px solid #1a1a1a' }}>
           <input
             autoFocus value={newTitle} onChange={e => setNewTitle(e.target.value)} placeholder="Event title"
-            style={{ background: '#040F1C', border: '0.5px solid #0A2840', borderRadius: '5px', padding: '7px 10px', fontSize: '11px', color: '#7AABCC', outline: 'none', width: '100%' }}
+            style={{ background: '#111', border: '1px solid #222', borderRadius: '6px', padding: '7px 10px', fontSize: '11px', color: '#ffffff', outline: 'none', width: '100%' }}
           />
           <div style={{ display: 'flex', gap: '6px' }}>
             <input type="time" value={newTime} onChange={e => setNewTime(e.target.value)}
-              style={{ flex: 1, background: '#040F1C', border: '0.5px solid #0A2840', borderRadius: '5px', padding: '7px 10px', fontSize: '11px', color: '#7AABCC', outline: 'none' }} />
+              style={{ flex: 1, background: '#111', border: '1px solid #222', borderRadius: '6px', padding: '7px 10px', fontSize: '11px', color: '#ffffff', outline: 'none' }} />
             <select value={newType} onChange={e => setNewType(e.target.value)}
-              style={{ background: '#040F1C', border: '0.5px solid #0A2840', borderRadius: '5px', padding: '7px 8px', fontSize: '11px', color: '#7AABCC', outline: 'none' }}>
+              style={{ background: '#111', border: '1px solid #222', borderRadius: '6px', padding: '7px 8px', fontSize: '11px', color: '#ffffff', outline: 'none' }}>
               <option value="work">Work</option>
               <option value="personal">Personal</option>
               <option value="health">Health</option>
             </select>
           </div>
           <button type="submit" disabled={saving}
-            style={{ background: '#0F6E56', borderRadius: '5px', padding: '6px 14px', fontSize: '11px', color: '#9FE1CB', border: 'none', cursor: 'pointer', opacity: saving ? 0.5 : 1 }}>
+            style={{ background: '#ffffff', borderRadius: '6px', padding: '7px 14px', fontSize: '11px', color: '#000', border: 'none', cursor: 'pointer', fontWeight: 700, opacity: saving ? 0.5 : 1 }}>
             {saving ? 'Adding…' : 'Add Event'}
           </button>
         </form>
       )}
 
-      <div style={{ display: 'flex', flexDirection: 'column', gap: '0', maxHeight: '200px', overflowY: 'auto' }}>
+      <div style={{ display: 'flex', flexDirection: 'column', gap: '0', maxHeight: '240px', overflowY: 'auto' }}>
         {loading ? (
-          <span style={{ fontSize: '11px', color: '#1E4060' }}>Loading…</span>
+          <span style={{ fontSize: '11px', color: '#333' }}>Loading…</span>
         ) : events.length === 0 ? (
-          <span style={{ fontSize: '12px', color: '#1E4060' }}>Clear schedule today.</span>
+          <span style={{ fontSize: '12px', color: '#333' }}>Clear schedule today.</span>
         ) : events.map((ev, i) => (
           <div key={ev.id} style={{
             display: 'flex', alignItems: 'flex-start', gap: '10px',
             padding: '9px 0',
-            borderBottom: i < events.length - 1 ? '0.5px solid #0A2840' : 'none',
+            borderBottom: i < events.length - 1 ? '1px solid #1a1a1a' : 'none',
           }}>
-            <div style={{ width: '3px', height: '32px', borderRadius: '2px', background: typeColors[ev.event_type] ?? '#378ADD', flexShrink: 0, marginTop: '2px' }} />
+            <div style={{ width: '3px', height: '32px', borderRadius: '2px', background: typeDot[ev.event_type] ?? '#555', flexShrink: 0, marginTop: '2px' }} />
             <div>
-              <div style={{ fontSize: '12px', color: '#7AABCC' }}>{ev.title}</div>
-              <div style={{ fontSize: '10px', color: '#1E4060', marginTop: '2px' }}>
+              <div style={{ fontSize: '12px', color: typeColors[ev.event_type] ?? '#aaa' }}>{ev.title}</div>
+              <div style={{ fontSize: '10px', color: '#444', marginTop: '2px' }}>
                 {format(new Date(ev.start_time), 'h:mm a')}
                 {ev.end_time && ` — ${format(new Date(ev.end_time), 'h:mm a')}`}
               </div>

@@ -8,7 +8,10 @@ const WORK_MINS = 25
 const BREAK_MINS = 5
 
 export default function SessionCard() {
-  const [task, setTask] = useState('')
+  const [task, setTask] = useState(() => {
+    if (typeof window !== 'undefined') return localStorage.getItem('session-task') ?? ''
+    return ''
+  })
   const [editingTask, setEditingTask] = useState(false)
   const [mode, setMode] = useState<'work' | 'break'>('work')
   const [secondsLeft, setSecondsLeft] = useState(WORK_MINS * 60)
@@ -44,6 +47,7 @@ export default function SessionCard() {
       if (intervalRef.current) clearInterval(intervalRef.current)
     }
     return () => { if (intervalRef.current) clearInterval(intervalRef.current) }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [running, mode])
 
   async function completeSession() {
@@ -78,6 +82,11 @@ export default function SessionCard() {
 
   function handleReset() { setRunning(false); setMode('work'); setSecondsLeft(WORK_MINS * 60) }
 
+  function handleTaskChange(val: string) {
+    setTask(val)
+    localStorage.setItem('session-task', val)
+  }
+
   const mins = String(Math.floor(secondsLeft / 60)).padStart(2, '0')
   const secs = String(secondsLeft % 60).padStart(2, '0')
   const totalSecs = mode === 'work' ? WORK_MINS * 60 : BREAK_MINS * 60
@@ -86,27 +95,27 @@ export default function SessionCard() {
 
   return (
     <>
-      <div style={{ background: '#071E30', borderRadius: '8px', padding: '18px', border: '0.5px solid #0A2840' }}>
+      <div style={{ background: '#111111', borderRadius: '10px', padding: '18px', border: '1px solid #1a1a1a' }}>
         {/* Header */}
         <div style={{ display: 'flex', alignItems: 'center', gap: '7px', marginBottom: '14px' }}>
-          <div style={{ width: '4px', height: '4px', borderRadius: '50%', background: '#1D9E75' }} />
-          <span style={{ fontSize: '9px', letterSpacing: '0.18em', color: '#378ADD', textTransform: 'uppercase' }}>Session</span>
+          <div style={{ width: '5px', height: '5px', borderRadius: '50%', background: '#ffffff' }} />
+          <span style={{ fontSize: '10px', letterSpacing: '0.14em', color: '#ffffff', textTransform: 'uppercase', fontWeight: 700 }}>Session</span>
           <span style={{
-            marginLeft: '4px', fontSize: '9px', padding: '1px 6px',
-            background: mode === 'work' ? '#0C3A2A' : '#0C2E50',
-            color: mode === 'work' ? '#5DCAA5' : '#378ADD',
-            borderRadius: '20px', letterSpacing: '0.1em',
+            marginLeft: '4px', fontSize: '9px', padding: '2px 7px',
+            background: mode === 'work' ? '#1a1a1a' : '#191919',
+            color: mode === 'work' ? '#ffffff' : '#888',
+            borderRadius: '20px', letterSpacing: '0.1em', fontWeight: 600,
           }}>{mode === 'work' ? 'FOCUS' : 'BREAK'}</span>
-          <button onClick={loadHistory} style={{ marginLeft: 'auto', background: 'none', border: 'none', color: '#1E4060', cursor: 'pointer', fontSize: '12px' }}>↗</button>
+          <button onClick={loadHistory} style={{ marginLeft: 'auto', background: 'none', border: 'none', color: '#444', cursor: 'pointer', fontSize: '13px' }}>↗</button>
         </div>
 
         {/* Timer ring + controls */}
         <div style={{ display: 'flex', alignItems: 'center', gap: '18px' }}>
           <div style={{ position: 'relative', width: '96px', height: '96px', flexShrink: 0 }}>
             <svg width="96" height="96" style={{ transform: 'rotate(-90deg)' }}>
-              <circle cx="48" cy="48" r={r} fill="none" stroke="#0A2840" strokeWidth="5" />
+              <circle cx="48" cy="48" r={r} fill="none" stroke="#222" strokeWidth="4" />
               <circle cx="48" cy="48" r={r} fill="none"
-                stroke={mode === 'work' ? '#1D9E75' : '#378ADD'} strokeWidth="5"
+                stroke="#ffffff" strokeWidth="4"
                 strokeDasharray={C} strokeDashoffset={C * (1 - progress)}
                 strokeLinecap="round" style={{ transition: 'stroke-dashoffset 1s linear' }} />
             </svg>
@@ -114,7 +123,7 @@ export default function SessionCard() {
               position: 'absolute', inset: 0, display: 'flex',
               alignItems: 'center', justifyContent: 'center',
               fontFamily: 'var(--font-geist-mono)', fontSize: '20px',
-              fontWeight: 200, color: '#5DCAA5',
+              fontWeight: 200, color: '#ffffff',
             }}>
               {mins}:{secs}
             </div>
@@ -124,29 +133,29 @@ export default function SessionCard() {
             {editingTask ? (
               <input
                 autoFocus value={task}
-                onChange={e => setTask(e.target.value)}
+                onChange={e => handleTaskChange(e.target.value)}
                 onBlur={() => setEditingTask(false)}
                 onKeyDown={e => e.key === 'Enter' && setEditingTask(false)}
-                placeholder="Current task…"
-                style={{ background: '#040F1C', border: '0.5px solid #0A2840', borderRadius: '5px', padding: '6px 8px', fontSize: '11px', color: '#7AABCC', outline: 'none', width: '100%' }}
+                placeholder="Today's one thing…"
+                style={{ background: '#0a0a0a', border: '1px solid #222', borderRadius: '6px', padding: '7px 9px', fontSize: '11px', color: '#ffffff', outline: 'none', width: '100%' }}
               />
             ) : (
-              <button onClick={() => setEditingTask(true)} style={{ background: 'none', border: 'none', textAlign: 'left', fontSize: '12px', color: task ? '#7AABCC' : '#1E4060', cursor: 'pointer', padding: 0 }}>
-                {task || 'Set task…'}
+              <button onClick={() => setEditingTask(true)} style={{ background: 'none', border: 'none', textAlign: 'left', fontSize: '12px', color: task ? '#aaaaaa' : '#333', cursor: 'pointer', padding: 0 }}>
+                {task || "Set today's one thing…"}
               </button>
             )}
             <div style={{ display: 'flex', gap: '6px' }}>
-              <button onClick={handleStart} style={{ background: '#0F6E56', borderRadius: '5px', padding: '6px 14px', fontSize: '11px', color: '#9FE1CB', border: 'none', cursor: 'pointer' }}>
+              <button onClick={handleStart} style={{ background: '#ffffff', borderRadius: '6px', padding: '7px 16px', fontSize: '11px', color: '#000000', border: 'none', cursor: 'pointer', fontWeight: 700 }}>
                 {running ? '⏸ Pause' : '▶ Start'}
               </button>
-              <button onClick={handleReset} style={{ background: 'transparent', border: '0.5px solid #0A2840', borderRadius: '5px', padding: '6px 10px', fontSize: '11px', color: '#1E4060', cursor: 'pointer' }}>
+              <button onClick={handleReset} style={{ background: 'transparent', border: '1px solid #222', borderRadius: '6px', padding: '7px 11px', fontSize: '11px', color: '#555', cursor: 'pointer' }}>
                 ↺
               </button>
             </div>
           </div>
         </div>
 
-        <div style={{ height: '0.5px', background: '#0A2840', margin: '14px 0' }} />
+        <div style={{ height: '1px', background: '#1a1a1a', margin: '14px 0' }} />
 
         {/* Stats */}
         <div style={{ display: 'flex', gap: '24px' }}>
@@ -155,33 +164,33 @@ export default function SessionCard() {
             { val: `${focusMinutes}m`, label: 'FOCUS' },
           ].map(({ val, label }) => (
             <div key={label}>
-              <div style={{ fontSize: '16px', fontWeight: 300, color: '#5DCAA5' }}>{val}</div>
-              <div style={{ fontSize: '9px', letterSpacing: '0.08em', color: '#1E4060', textTransform: 'uppercase', marginTop: '2px' }}>{label}</div>
+              <div style={{ fontSize: '18px', fontWeight: 300, color: '#ffffff' }}>{val}</div>
+              <div style={{ fontSize: '9px', letterSpacing: '0.1em', color: '#444', textTransform: 'uppercase', marginTop: '2px' }}>{label}</div>
             </div>
           ))}
         </div>
       </div>
 
-      <Drawer open={showHistory} onClose={() => setShowHistory(false)} title="Session History" dotColor="#1D9E75">
+      <Drawer open={showHistory} onClose={() => setShowHistory(false)} title="Session History" dotColor="#ffffff">
         <div style={{ marginBottom: '20px' }}>
-          <div style={{ fontSize: '9px', letterSpacing: '0.08em', color: '#1E4060', textTransform: 'uppercase', marginBottom: '12px' }}>Daily Focus Minutes — Last 14 Days</div>
+          <div style={{ fontSize: '10px', letterSpacing: '0.1em', color: '#444', textTransform: 'uppercase', marginBottom: '12px' }}>Daily Focus Minutes — Last 14 Days</div>
           <div style={{ height: '160px' }}>
             <ResponsiveContainer width="100%" height="100%">
               <BarChart data={historyData} margin={{ top: 0, right: 0, bottom: 0, left: 0 }}>
-                <XAxis dataKey="date" tick={{ fontSize: 9, fill: '#1E4060' }} tickFormatter={d => d.slice(5)} />
+                <XAxis dataKey="date" tick={{ fontSize: 9, fill: '#444' }} tickFormatter={d => d.slice(5)} />
                 <YAxis hide />
                 <Tooltip
-                  contentStyle={{ background: '#071E30', border: '0.5px solid #0A2840', borderRadius: '5px', fontSize: '11px' }}
-                  labelStyle={{ color: '#378ADD' }} itemStyle={{ color: '#7AABCC' }}
+                  contentStyle={{ background: '#111', border: '1px solid #222', borderRadius: '6px', fontSize: '11px' }}
+                  labelStyle={{ color: '#ffffff' }} itemStyle={{ color: '#aaa' }}
                 />
-                <Bar dataKey="minutes" fill="#1D9E75" radius={[2, 2, 0, 0]} />
+                <Bar dataKey="minutes" fill="#ffffff" radius={[2, 2, 0, 0]} />
               </BarChart>
             </ResponsiveContainer>
           </div>
         </div>
-        <div style={{ height: '0.5px', background: '#0A2840', marginBottom: '16px' }} />
-        <div style={{ fontSize: '12px', color: '#1E4060' }}>
-          {historyData.length === 0 ? 'No session data yet. Start your first Pomodoro to track focus.' : `Total sessions tracked across ${historyData.length} days.`}
+        <div style={{ height: '1px', background: '#1a1a1a', marginBottom: '16px' }} />
+        <div style={{ fontSize: '12px', color: '#444' }}>
+          {historyData.length === 0 ? 'No session data yet.' : `${historyData.length} days tracked.`}
         </div>
       </Drawer>
     </>

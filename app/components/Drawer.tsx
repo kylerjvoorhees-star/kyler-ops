@@ -10,7 +10,7 @@ interface DrawerProps {
   children: React.ReactNode
 }
 
-export default function Drawer({ open, onClose, title, dotColor = '#378ADD', children }: DrawerProps) {
+export default function Drawer({ open, onClose, title, dotColor = '#ffffff', children }: DrawerProps) {
   useEffect(() => {
     const handleKey = (e: KeyboardEvent) => { if (e.key === 'Escape') onClose() }
     if (open) {
@@ -26,32 +26,32 @@ export default function Drawer({ open, onClose, title, dotColor = '#378ADD', chi
   if (!open) return null
 
   return (
-    <div style={{ position: 'fixed', inset: 0, zIndex: 100 }}>
+    <div style={{ position: 'fixed', inset: 0, zIndex: 200 }}>
       {/* Backdrop */}
       <div
         onClick={onClose}
-        style={{ position: 'absolute', inset: 0, background: 'rgba(1,5,9,0.85)' }}
+        style={{ position: 'absolute', inset: 0, background: 'rgba(0,0,0,0.8)' }}
       />
       {/* Panel */}
       <div style={{
         position: 'absolute', right: 0, top: 0, bottom: 0,
         width: '520px', maxWidth: '95vw',
-        background: '#071E30',
-        borderLeft: '0.5px solid #0A2840',
+        background: '#111111',
+        borderLeft: '1px solid #1a1a1a',
         overflowY: 'auto',
         padding: '24px',
       }}>
         {/* Header */}
         <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '20px' }}>
           <div style={{ display: 'flex', alignItems: 'center', gap: '7px' }}>
-            <div style={{ width: '4px', height: '4px', borderRadius: '50%', background: dotColor }} />
-            <span style={{ fontSize: '9px', letterSpacing: '0.18em', color: '#378ADD', textTransform: 'uppercase' }}>
+            <div style={{ width: '5px', height: '5px', borderRadius: '50%', background: dotColor }} />
+            <span style={{ fontSize: '10px', letterSpacing: '0.14em', color: '#ffffff', textTransform: 'uppercase', fontWeight: 700 }}>
               {title}
             </span>
           </div>
           <button
             onClick={onClose}
-            style={{ background: 'none', border: 'none', color: '#1E4060', cursor: 'pointer', fontSize: '18px', lineHeight: 1, padding: '2px 6px' }}
+            style={{ background: 'none', border: 'none', color: '#444', cursor: 'pointer', fontSize: '20px', lineHeight: 1, padding: '2px 6px' }}
           >
             ×
           </button>

@@ -1,5 +1,6 @@
 import type { Metadata } from 'next'
 import { Geist, Geist_Mono } from 'next/font/google'
+import TopNav from './components/TopNav'
 import './globals.css'
 
 const geistSans = Geist({ variable: '--font-geist-sans', subsets: ['latin'] })
@@ -13,7 +14,10 @@ export const metadata: Metadata = {
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
     <html lang="en" className={`${geistSans.variable} ${geistMono.variable}`}>
-      <body style={{ background: '#010509', minHeight: '100vh' }}>{children}</body>
+      <body style={{ background: '#000000', minHeight: '100vh', margin: 0 }}>
+        <TopNav />
+        {children}
+      </body>
     </html>
   )
 }

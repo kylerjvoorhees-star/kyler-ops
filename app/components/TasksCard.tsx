@@ -7,10 +7,10 @@ import { format } from 'date-fns'
 interface Task {
   id: string; title: string; description?: string; priority: number;
   status: 'pending' | 'in_progress' | 'done' | 'cancelled'
-  due_date?: string; ai_priority_score?: number; ai_priority_reason?: string; tags?: string[]
+  due_date?: string; ai_priority_score?: number; ai_priority_reason?: string
+  tags?: string[]; is_blocker?: boolean; temperature?: string
 }
 
-const PRIORITY_COLORS: Record<number, string> = { 1: '#D85A30', 2: '#EF9F27', 3: '#378ADD', 4: '#1E4060' }
 const PRIORITY_LABELS: Record<number, string> = { 1: 'urgent', 2: 'high', 3: 'normal', 4: 'low' }
 
 export default function TasksCard() {
@@ -72,52 +72,51 @@ export default function TasksCard() {
     setShowHistory(true)
   }
 
-  const pending = tasks.filter(t => t.status !== 'done').length
-  const topTasks = [...tasks].sort((a, b) => (b.ai_priority_score ?? 0) - (a.ai_priority_score ?? 0)).slice(0, 5)
+  const topTasks = tasks.slice(0, 6)
 
   return (
     <>
-      <div style={{ background: '#071E30', borderRadius: '8px', padding: '18px', border: '0.5px solid #0A2840' }}>
+      <div style={{ background: '#111111', borderRadius: '10px', padding: '18px', border: '1px solid #1a1a1a' }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: '7px', marginBottom: '14px' }}>
-          <div style={{ width: '4px', height: '4px', borderRadius: '50%', background: '#378ADD' }} />
-          <span style={{ fontSize: '9px', letterSpacing: '0.18em', color: '#378ADD', textTransform: 'uppercase' }}>Tasks</span>
-          {pending > 0 && (
-            <span style={{ fontSize: '9px', padding: '1px 6px', background: '#0A2840', color: '#1E4060', borderRadius: '20px' }}>{pending}</span>
+          <div style={{ width: '5px', height: '5px', borderRadius: '50%', background: '#ffffff' }} />
+          <span style={{ fontSize: '10px', letterSpacing: '0.14em', color: '#ffffff', textTransform: 'uppercase', fontWeight: 700 }}>Tasks</span>
+          {tasks.length > 0 && (
+            <span style={{ fontSize: '9px', padding: '1px 7px', background: '#1a1a1a', color: '#555', borderRadius: '20px', fontWeight: 600 }}>{tasks.length}</span>
           )}
-          <button onClick={loadHistory} style={{ marginLeft: 'auto', background: 'none', border: 'none', color: '#1E4060', cursor: 'pointer', fontSize: '12px' }}>↗</button>
+          <button onClick={loadHistory} style={{ marginLeft: 'auto', background: 'none', border: 'none', color: '#444', cursor: 'pointer', fontSize: '13px' }}>↗</button>
         </div>
 
         {/* Task list */}
-        <div style={{ maxHeight: '180px', overflowY: 'auto', marginBottom: '12px' }}>
+        <div style={{ marginBottom: '12px' }}>
           {loading ? (
-            <span style={{ fontSize: '11px', color: '#1E4060' }}>Loading…</span>
+            <span style={{ fontSize: '11px', color: '#333' }}>Loading…</span>
           ) : topTasks.length === 0 ? (
-            <span style={{ fontSize: '12px', color: '#1E4060' }}>No tasks yet. Add one below.</span>
+            <span style={{ fontSize: '12px', color: '#333' }}>No tasks. Add one below.</span>
           ) : topTasks.map((t, i) => (
             <div key={t.id} style={{
               display: 'flex', alignItems: 'center', justifyContent: 'space-between',
               padding: '9px 0',
-              borderBottom: i < topTasks.length - 1 ? '0.5px solid #0A2840' : 'none',
+              borderBottom: i < topTasks.length - 1 ? '1px solid #1a1a1a' : 'none',
             }}>
               <div style={{ display: 'flex', alignItems: 'center', gap: '9px', flex: 1, minWidth: 0 }}>
                 <button
                   onClick={() => toggleDone(t)} disabled={toggling === t.id}
                   style={{
-                    width: '13px', height: '13px', borderRadius: '3px', cursor: 'pointer', flexShrink: 0,
-                    border: '0.5px solid #0A2840', background: 'transparent',
+                    width: '14px', height: '14px', borderRadius: '3px', cursor: 'pointer', flexShrink: 0,
+                    border: '1px solid #333', background: 'transparent',
                   }}
                 />
                 <button onClick={() => setSelected(t)} style={{
                   background: 'none', border: 'none', textAlign: 'left', cursor: 'pointer',
-                  fontSize: '12px', color: '#7AABCC', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', flex: 1,
+                  fontSize: '12px', color: '#aaaaaa', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', flex: 1,
                 }}>
+                  {t.is_blocker && <span style={{ color: '#ff4444', marginRight: '5px' }}>⚡</span>}
                   {t.title}
                 </button>
               </div>
               <div style={{ display: 'flex', alignItems: 'center', gap: '8px', flexShrink: 0 }}>
-                <div style={{ width: '5px', height: '5px', borderRadius: '50%', background: PRIORITY_COLORS[t.priority] ?? '#378ADD' }} />
                 {t.due_date && (
-                  <span style={{ fontSize: '10px', color: '#1E4060' }}>
+                  <span style={{ fontSize: '10px', color: '#444' }}>
                     {format(new Date(t.due_date + 'T12:00:00'), 'MMM d')}
                   </span>
                 )}
@@ -126,72 +125,73 @@ export default function TasksCard() {
           ))}
         </div>
 
-        <div style={{ height: '0.5px', background: '#0A2840', marginBottom: '12px' }} />
+        <div style={{ height: '1px', background: '#1a1a1a', marginBottom: '12px' }} />
 
         {/* Add task */}
         <form onSubmit={addTask} style={{ display: 'flex', gap: '6px', marginBottom: '10px' }}>
           <input
-            value={newTitle} onChange={e => setNewTitle(e.target.value)} placeholder="+ Add task…"
-            style={{ flex: 1, background: '#040F1C', border: '0.5px solid #0A2840', borderRadius: '5px', padding: '7px 10px', fontSize: '11px', color: '#7AABCC', outline: 'none' }}
+            value={newTitle} onChange={e => setNewTitle(e.target.value)} placeholder="Add task…"
+            style={{ flex: 1, background: '#0a0a0a', border: '1px solid #222', borderRadius: '6px', padding: '7px 10px', fontSize: '11px', color: '#ffffff', outline: 'none' }}
           />
           <button type="submit" disabled={adding || !newTitle.trim()}
-            style={{ background: '#0F6E56', borderRadius: '5px', padding: '6px 12px', fontSize: '11px', color: '#9FE1CB', border: 'none', cursor: 'pointer', opacity: adding ? 0.5 : 1 }}>
+            style={{ background: '#ffffff', borderRadius: '6px', padding: '6px 12px', fontSize: '11px', color: '#000', border: 'none', cursor: 'pointer', fontWeight: 700, opacity: adding ? 0.5 : 1 }}>
             Add
           </button>
         </form>
 
         <button onClick={reprioritize} disabled={prioritizing}
-          style={{ background: '#0C2E50', border: '0.5px solid #185FA5', borderRadius: '5px', padding: '5px 12px', fontSize: '11px', color: '#378ADD', cursor: 'pointer', opacity: prioritizing ? 0.6 : 1 }}>
+          style={{ background: 'transparent', border: '1px solid #222', borderRadius: '6px', padding: '5px 12px', fontSize: '10px', color: '#555', cursor: 'pointer', fontWeight: 600, letterSpacing: '0.05em', opacity: prioritizing ? 0.5 : 1 }}>
           {prioritizing ? 'Prioritizing…' : '✦ AI Reprioritize'}
         </button>
       </div>
 
       {/* Task detail drawer */}
       {selected && (
-        <Drawer open={!!selected} onClose={() => setSelected(null)} title="Task Detail" dotColor="#378ADD">
+        <Drawer open={!!selected} onClose={() => setSelected(null)} title="Task Detail" dotColor="#ffffff">
           <div style={{ marginBottom: '16px' }}>
-            <div style={{ fontSize: '16px', fontWeight: 300, color: '#7AABCC', marginBottom: '8px' }}>{selected.title}</div>
+            <div style={{ fontSize: '16px', fontWeight: 300, color: '#ffffff', marginBottom: '8px' }}>{selected.title}</div>
             {selected.description && (
-              <div style={{ fontSize: '12px', color: '#1E4060', lineHeight: 1.7 }}>{selected.description}</div>
+              <div style={{ fontSize: '12px', color: '#666', lineHeight: 1.7 }}>{selected.description}</div>
             )}
           </div>
-          <div style={{ height: '0.5px', background: '#0A2840', marginBottom: '14px' }} />
+          <div style={{ height: '1px', background: '#1a1a1a', marginBottom: '14px' }} />
           <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
             {[
-              { label: 'Priority', val: PRIORITY_LABELS[selected.priority] ?? 'normal', color: PRIORITY_COLORS[selected.priority] },
+              { label: 'Priority', val: PRIORITY_LABELS[selected.priority] ?? 'normal' },
               { label: 'Status', val: selected.status },
               ...(selected.due_date ? [{ label: 'Due', val: format(new Date(selected.due_date + 'T12:00:00'), 'MMMM d, yyyy') }] : []),
               ...(selected.ai_priority_score != null ? [{ label: 'AI Score', val: `${selected.ai_priority_score}/10` }] : []),
-            ].map(({ label, val, color }) => (
+              ...(selected.is_blocker ? [{ label: 'Blocker', val: 'Yes ⚡' }] : []),
+            ].map(({ label, val }) => (
               <div key={label} style={{ display: 'flex', justifyContent: 'space-between' }}>
-                <span style={{ fontSize: '10px', letterSpacing: '0.08em', color: '#1E4060', textTransform: 'uppercase' }}>{label}</span>
-                <span style={{ fontSize: '12px', color: color ?? '#7AABCC' }}>{val}</span>
+                <span style={{ fontSize: '10px', letterSpacing: '0.1em', color: '#444', textTransform: 'uppercase' }}>{label}</span>
+                <span style={{ fontSize: '12px', color: '#aaaaaa' }}>{val}</span>
               </div>
             ))}
             {selected.ai_priority_reason && (
-              <div style={{ background: '#040F1C', borderRadius: '5px', padding: '10px', border: '0.5px solid #0A2840' }}>
-                <div style={{ fontSize: '9px', color: '#378ADD', letterSpacing: '0.08em', textTransform: 'uppercase', marginBottom: '4px' }}>AI Reasoning</div>
-                <div style={{ fontSize: '11px', color: '#1E4060', lineHeight: 1.6 }}>{selected.ai_priority_reason}</div>
+              <div style={{ background: '#0a0a0a', borderRadius: '6px', padding: '10px', border: '1px solid #1a1a1a', marginTop: '4px' }}>
+                <div style={{ fontSize: '9px', color: '#444', letterSpacing: '0.1em', textTransform: 'uppercase', marginBottom: '4px' }}>AI Reasoning</div>
+                <div style={{ fontSize: '11px', color: '#888', lineHeight: 1.6 }}>{selected.ai_priority_reason}</div>
               </div>
             )}
           </div>
-          <div style={{ height: '0.5px', background: '#0A2840', margin: '16px 0' }} />
+          <div style={{ height: '1px', background: '#1a1a1a', margin: '16px 0' }} />
           <button onClick={() => { toggleDone(selected); setSelected(null) }}
-            style={{ background: '#0F6E56', borderRadius: '5px', padding: '6px 16px', fontSize: '11px', color: '#9FE1CB', border: 'none', cursor: 'pointer' }}>
+            style={{ background: '#ffffff', borderRadius: '6px', padding: '7px 18px', fontSize: '11px', color: '#000', border: 'none', cursor: 'pointer', fontWeight: 700 }}>
             Mark Complete
           </button>
         </Drawer>
       )}
 
       {/* History drawer */}
-      <Drawer open={showHistory && !selected} onClose={() => setShowHistory(false)} title="Tasks History" dotColor="#378ADD">
-        <div style={{ fontSize: '9px', letterSpacing: '0.08em', color: '#1E4060', textTransform: 'uppercase', marginBottom: '12px' }}>Completed Tasks</div>
+      <Drawer open={showHistory && !selected} onClose={() => setShowHistory(false)} title="Completed Tasks" dotColor="#ffffff">
+        <div style={{ fontSize: '10px', letterSpacing: '0.1em', color: '#444', textTransform: 'uppercase', marginBottom: '12px' }}>Completed</div>
         {doneTasks.length === 0 ? (
-          <span style={{ fontSize: '12px', color: '#1E4060' }}>No completed tasks yet.</span>
+          <span style={{ fontSize: '12px', color: '#333' }}>No completed tasks yet.</span>
         ) : doneTasks.map((t, i) => (
-          <div key={t.id} style={{ padding: '9px 0', borderBottom: i < doneTasks.length - 1 ? '0.5px solid #0A2840' : 'none' }}>
-            <div style={{ fontSize: '12px', color: '#7AABCC', marginBottom: '2px' }}>{t.title}</div>
-            {t.due_date && <div style={{ fontSize: '10px', color: '#1E4060' }}>Due {format(new Date(t.due_date + 'T12:00:00'), 'MMM d')}</div>}
+          <div key={t.id} style={{ padding: '9px 0', borderBottom: i < doneTasks.length - 1 ? '1px solid #1a1a1a' : 'none' }}>
+            <div style={{ fontSize: '12px', color: '#666', marginBottom: '2px', textDecoration: 'line-through' }}>{t.title}</div>
+            {t.due_date && <div style={{ fontSize: '10px', color: '#444' }}>Due {format(new Date(t.due_date + 'T12:00:00'), 'MMM d')}</div>}
           </div>
         ))}
       </Drawer>

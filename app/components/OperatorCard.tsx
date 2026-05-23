@@ -41,23 +41,23 @@ export default function OperatorCard() {
   }
 
   return (
-    <div style={{ background: '#071E30', borderRadius: '8px', padding: '18px', border: '0.5px solid #0A2840' }}>
+    <div style={{ background: '#111111', borderRadius: '10px', padding: '18px', border: '1px solid #1a1a1a' }}>
       {/* Header */}
       <div style={{ display: 'flex', alignItems: 'center', gap: '7px', marginBottom: '14px' }}>
-        <div style={{ width: '4px', height: '4px', borderRadius: '50%', background: '#378ADD' }} />
-        <span style={{ fontSize: '9px', letterSpacing: '0.18em', color: '#378ADD', textTransform: 'uppercase' }}>
+        <div style={{ width: '5px', height: '5px', borderRadius: '50%', background: '#ffffff' }} />
+        <span style={{ fontSize: '10px', letterSpacing: '0.14em', color: '#ffffff', textTransform: 'uppercase', fontWeight: 700 }}>
           Operator
         </span>
       </div>
 
       {/* Briefing */}
-      <div style={{ fontSize: '12px', color: '#7AABCC', lineHeight: 1.7, minHeight: '72px', marginBottom: '14px' }}>
+      <div style={{ fontSize: '12px', color: '#aaaaaa', lineHeight: 1.7, minHeight: '80px', marginBottom: '14px' }}>
         {loadingBriefing
-          ? <span style={{ color: '#1E4060' }}>Generating briefing…</span>
+          ? <span style={{ color: '#333' }}>Generating briefing…</span>
           : briefing}
       </div>
 
-      <div style={{ height: '0.5px', background: '#0A2840', margin: '12px 0' }} />
+      <div style={{ height: '1px', background: '#1a1a1a', margin: '12px 0' }} />
 
       {/* Command input */}
       <form onSubmit={handleCommand} style={{ display: 'flex', gap: '7px' }}>
@@ -67,19 +67,19 @@ export default function OperatorCard() {
           placeholder="Give me a command…"
           disabled={submitting}
           style={{
-            flex: 1, background: '#040F1C', border: '0.5px solid #0A2840',
-            borderRadius: '5px', padding: '7px 10px', fontSize: '11px',
-            color: '#7AABCC', outline: 'none',
+            flex: 1, background: '#0a0a0a', border: '1px solid #222',
+            borderRadius: '6px', padding: '8px 10px', fontSize: '11px',
+            color: '#ffffff', outline: 'none',
           }}
         />
         <button
           type="submit"
           disabled={submitting || !command.trim()}
           style={{
-            background: '#0C2E50', border: '0.5px solid #185FA5',
-            borderRadius: '5px', padding: '6px 12px',
-            fontSize: '11px', color: '#378ADD', cursor: 'pointer',
-            opacity: submitting || !command.trim() ? 0.4 : 1,
+            background: '#ffffff', border: 'none',
+            borderRadius: '6px', padding: '7px 13px',
+            fontSize: '11px', color: '#000000', cursor: 'pointer', fontWeight: 700,
+            opacity: submitting || !command.trim() ? 0.3 : 1,
           }}
         >
           {submitting ? '…' : '→'}
@@ -88,19 +88,19 @@ export default function OperatorCard() {
 
       {/* Command log */}
       {log.length > 0 && (
-        <div style={{ marginTop: '10px', display: 'flex', flexDirection: 'column', gap: '6px' }}>
+        <div style={{ marginTop: '10px', display: 'flex', flexDirection: 'column', gap: '5px' }}>
           {log.map(entry => (
             <div key={entry.id} style={{
-              background: '#040F1C', borderRadius: '5px', padding: '7px 10px',
-              border: '0.5px solid #0A2840',
+              background: '#0a0a0a', borderRadius: '6px', padding: '7px 10px',
+              border: '1px solid #1a1a1a',
             }}>
               <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '2px' }}>
-                <span style={{ fontSize: '10px', color: '#1E4060', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', maxWidth: '80%' }}>
+                <span style={{ fontSize: '10px', color: '#444', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', maxWidth: '80%' }}>
                   {entry.text}
                 </span>
-                <span style={{ fontSize: '10px', color: '#0E2030' }}>{entry.ts}</span>
+                <span style={{ fontSize: '10px', color: '#333' }}>{entry.ts}</span>
               </div>
-              <span style={{ fontSize: '11px', color: '#7AABCC' }}>{entry.result}</span>
+              <span style={{ fontSize: '11px', color: '#aaaaaa' }}>{entry.result}</span>
             </div>
           ))}
         </div>
