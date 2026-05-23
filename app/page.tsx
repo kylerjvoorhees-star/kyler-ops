@@ -1,65 +1,66 @@
-import Image from "next/image";
+import { Suspense } from 'react'
+import OperatorCard from './components/OperatorCard'
+import SessionCard from './components/SessionCard'
+import CalendarCard from './components/CalendarCard'
+import HabitsCard from './components/HabitsCard'
+import CrmCard from './components/CrmCard'
+import NutritionCard from './components/NutritionCard'
+import FinanceCard from './components/FinanceCard'
 
-export default function Home() {
+function CardSkeleton({ tall }: { tall?: boolean }) {
   return (
-    <div className="flex flex-col flex-1 items-center justify-center bg-zinc-50 font-sans dark:bg-black">
-      <main className="flex flex-1 w-full max-w-3xl flex-col items-center justify-between py-32 px-16 bg-white dark:bg-black sm:items-start">
-        <Image
-          className="dark:invert"
-          src="/next.svg"
-          alt="Next.js logo"
-          width={100}
-          height={20}
-          priority
-        />
-        <div className="flex flex-col items-center gap-6 text-center sm:items-start sm:text-left">
-          <h1 className="max-w-xs text-3xl font-semibold leading-10 tracking-tight text-black dark:text-zinc-50">
-            To get started, edit the page.tsx file.
+    <div
+      className={`rounded-2xl bg-white/5 border border-white/10 animate-pulse ${tall ? 'h-48' : 'h-72'}`}
+    />
+  )
+}
+
+export default function Dashboard() {
+  return (
+    <main className="min-h-screen p-4 md:p-6 lg:p-8">
+      <div className="max-w-[1600px] mx-auto space-y-4">
+        <header className="flex items-center justify-between mb-2">
+          <h1 className="text-xl font-semibold tracking-tight text-white/80">
+            KYLER<span className="text-violet-400">OPS</span>
           </h1>
-          <p className="max-w-md text-lg leading-8 text-zinc-600 dark:text-zinc-400">
-            Looking for a starting point or more instructions? Head over to{" "}
-            <a
-              href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950 dark:text-zinc-50"
-            >
-              Templates
-            </a>{" "}
-            or the{" "}
-            <a
-              href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950 dark:text-zinc-50"
-            >
-              Learning
-            </a>{" "}
-            center.
-          </p>
+          <span className="text-xs text-white/30 font-mono">
+            {new Date().toLocaleDateString('en-US', { weekday: 'long', month: 'long', day: 'numeric' })}
+          </span>
+        </header>
+
+        {/* Row 1: Operator / Session / Calendar */}
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+          <Suspense fallback={<CardSkeleton />}>
+            <OperatorCard />
+          </Suspense>
+          <Suspense fallback={<CardSkeleton />}>
+            <SessionCard />
+          </Suspense>
+          <Suspense fallback={<CardSkeleton />}>
+            <CalendarCard />
+          </Suspense>
         </div>
-        <div className="flex flex-col gap-4 text-base font-medium sm:flex-row">
-          <a
-            className="flex h-12 w-full items-center justify-center gap-2 rounded-full bg-foreground px-5 text-background transition-colors hover:bg-[#383838] dark:hover:bg-[#ccc] md:w-[158px]"
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <Image
-              className="dark:invert"
-              src="/vercel.svg"
-              alt="Vercel logomark"
-              width={16}
-              height={16}
-            />
-            Deploy Now
-          </a>
-          <a
-            className="flex h-12 w-full items-center justify-center rounded-full border border-solid border-black/[.08] px-5 transition-colors hover:border-transparent hover:bg-black/[.04] dark:border-white/[.145] dark:hover:bg-[#1a1a1a] md:w-[158px]"
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Documentation
-          </a>
+
+        {/* Row 2: Habits / CRM / Nutrition */}
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+          <Suspense fallback={<CardSkeleton />}>
+            <HabitsCard />
+          </Suspense>
+          <Suspense fallback={<CardSkeleton />}>
+            <CrmCard />
+          </Suspense>
+          <Suspense fallback={<CardSkeleton />}>
+            <NutritionCard />
+          </Suspense>
         </div>
-      </main>
-    </div>
-  );
+
+        {/* Row 3: Finance full-width */}
+        <div className="grid grid-cols-1">
+          <Suspense fallback={<CardSkeleton tall />}>
+            <FinanceCard />
+          </Suspense>
+        </div>
+      </div>
+    </main>
+  )
 }
