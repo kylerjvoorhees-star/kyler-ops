@@ -1,27 +1,19 @@
 'use client'
 
 import { useState, useEffect } from 'react'
-import { Bot, Send, Loader2 } from 'lucide-react'
-
-interface CommandLog {
-  id: string
-  text: string
-  result: string
-  ts: string
-}
 
 export default function OperatorCard() {
   const [briefing, setBriefing] = useState('')
   const [loadingBriefing, setLoadingBriefing] = useState(true)
   const [command, setCommand] = useState('')
   const [submitting, setSubmitting] = useState(false)
-  const [log, setLog] = useState<CommandLog[]>([])
+  const [log, setLog] = useState<{ id: string; text: string; result: string; ts: string }[]>([])
 
   useEffect(() => {
     fetch('/api/operator/briefing')
-      .then((r) => r.json())
-      .then((d) => setBriefing(d.briefing ?? 'Good morning, Kyler.'))
-      .catch(() => setBriefing('Unable to load briefing.'))
+      .then(r => r.json())
+      .then(d => setBriefing(d.briefing ?? ''))
+      .catch(() => setBriefing('Good morning, Kyler.'))
       .finally(() => setLoadingBriefing(false))
   }, [])
 
@@ -38,71 +30,77 @@ export default function OperatorCard() {
         body: JSON.stringify({ command: text }),
       })
       const data = await res.json()
-      setLog((prev) =>
-        [
-          {
-            id: Date.now().toString(),
-            text,
-            result: data.result ?? 'Done.',
-            ts: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
-          },
-          ...prev,
-        ].slice(0, 5)
-      )
+      setLog(prev => [{
+        id: Date.now().toString(), text,
+        result: data.result ?? 'Done.',
+        ts: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
+      }, ...prev].slice(0, 5))
     } catch {
-      setLog((prev) =>
-        [{ id: Date.now().toString(), text, result: 'Error executing command.', ts: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) }, ...prev].slice(0, 5)
-      )
-    } finally {
-      setSubmitting(false)
-    }
+      setLog(prev => [{ id: Date.now().toString(), text, result: 'Error.', ts: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) }, ...prev].slice(0, 5))
+    } finally { setSubmitting(false) }
   }
 
   return (
-    <div className="rounded-2xl bg-white/5 backdrop-blur border border-white/10 p-5 flex flex-col gap-4 hover:border-white/20 transition-colors">
-      <div className="flex items-center gap-2">
-        <Bot size={16} className="text-violet-400" />
-        <span className="text-xs font-semibold tracking-widest text-white/60 uppercase">Operator</span>
+    <div style={{ background: '#071E30', borderRadius: '8px', padding: '18px', border: '0.5px solid #0A2840' }}>
+      {/* Header */}
+      <div style={{ display: 'flex', alignItems: 'center', gap: '7px', marginBottom: '14px' }}>
+        <div style={{ width: '4px', height: '4px', borderRadius: '50%', background: '#378ADD' }} />
+        <span style={{ fontSize: '9px', letterSpacing: '0.18em', color: '#378ADD', textTransform: 'uppercase' }}>
+          Operator
+        </span>
       </div>
 
-      <div className="text-sm text-white/70 leading-relaxed min-h-[80px]">
-        {loadingBriefing ? (
-          <div className="flex items-center gap-2 text-white/30">
-            <Loader2 size={14} className="animate-spin" />
-            Generating briefing…
-          </div>
-        ) : (
-          briefing
-        )}
+      {/* Briefing */}
+      <div style={{ fontSize: '12px', color: '#7AABCC', lineHeight: 1.7, minHeight: '72px', marginBottom: '14px' }}>
+        {loadingBriefing
+          ? <span style={{ color: '#1E4060' }}>Generating briefing…</span>
+          : briefing}
       </div>
 
-      <form onSubmit={handleCommand} className="flex gap-2">
+      <div style={{ height: '0.5px', background: '#0A2840', margin: '12px 0' }} />
+
+      {/* Command input */}
+      <form onSubmit={handleCommand} style={{ display: 'flex', gap: '7px' }}>
         <input
-          type="text"
           value={command}
-          onChange={(e) => setCommand(e.target.value)}
+          onChange={e => setCommand(e.target.value)}
           placeholder="Give me a command…"
-          className="flex-1 bg-white/5 border border-white/10 rounded-lg px-3 py-2 text-sm text-white placeholder:text-white/25 focus:outline-none focus:border-violet-500/50"
           disabled={submitting}
+          style={{
+            flex: 1, background: '#040F1C', border: '0.5px solid #0A2840',
+            borderRadius: '5px', padding: '7px 10px', fontSize: '11px',
+            color: '#7AABCC', outline: 'none',
+          }}
         />
         <button
           type="submit"
           disabled={submitting || !command.trim()}
-          className="px-3 py-2 bg-violet-600 hover:bg-violet-500 disabled:opacity-40 rounded-lg transition-colors"
+          style={{
+            background: '#0C2E50', border: '0.5px solid #185FA5',
+            borderRadius: '5px', padding: '6px 12px',
+            fontSize: '11px', color: '#378ADD', cursor: 'pointer',
+            opacity: submitting || !command.trim() ? 0.4 : 1,
+          }}
         >
-          {submitting ? <Loader2 size={14} className="animate-spin" /> : <Send size={14} />}
+          {submitting ? '…' : '→'}
         </button>
       </form>
 
+      {/* Command log */}
       {log.length > 0 && (
-        <div className="space-y-1.5">
-          {log.map((entry) => (
-            <div key={entry.id} className="text-xs bg-white/3 rounded-lg px-3 py-2">
-              <div className="flex justify-between text-white/40 mb-0.5">
-                <span className="truncate">{entry.text}</span>
-                <span className="shrink-0 ml-2">{entry.ts}</span>
+        <div style={{ marginTop: '10px', display: 'flex', flexDirection: 'column', gap: '6px' }}>
+          {log.map(entry => (
+            <div key={entry.id} style={{
+              background: '#040F1C', borderRadius: '5px', padding: '7px 10px',
+              border: '0.5px solid #0A2840',
+            }}>
+              <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '2px' }}>
+                <span style={{ fontSize: '10px', color: '#1E4060', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', maxWidth: '80%' }}>
+                  {entry.text}
+                </span>
+                <span style={{ fontSize: '10px', color: '#0E2030' }}>{entry.ts}</span>
               </div>
-              <div className="text-white/70">{entry.result}</div>
+              <span style={{ fontSize: '11px', color: '#7AABCC' }}>{entry.result}</span>
             </div>
           ))}
         </div>

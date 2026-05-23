@@ -1,45 +1,52 @@
 import Anthropic from '@anthropic-ai/sdk'
 import { supabaseAdmin } from '@/lib/supabase'
-import { format } from 'date-fns'
+import { format, addHours } from 'date-fns'
 
 export async function GET() {
-  try {
-    const today = format(new Date(), 'yyyy-MM-dd')
-    const hour = new Date().getHours()
-    const greeting = hour < 12 ? 'Good morning' : hour < 17 ? 'Good afternoon' : 'Good evening'
+  const now = new Date()
+  const today = format(now, 'yyyy-MM-dd')
+  const hour = now.getHours()
+  const timeStr = format(now, 'h:mm a')
 
-    const [habitsRes, contactsRes] = await Promise.all([
-      supabaseAdmin.from('habits').select('id, name'),
-      supabaseAdmin
-        .from('contacts')
-        .select('name, last_contact_date, contact_frequency_days')
-        .order('last_contact_date', { ascending: true })
-        .limit(10),
+  try {
+    const [habitsRes, completionsRes, sessionsRes, tasksRes, nutritionRes, calendarRes, journalRes] = await Promise.all([
+      supabaseAdmin.from('habits').select('id'),
+      supabaseAdmin.from('habit_completions').select('habit_id').eq('completed_date', today),
+      supabaseAdmin.from('sessions').select('duration_minutes').gte('started_at', `${today}T00:00:00`).eq('type', 'work'),
+      supabaseAdmin.from('tasks').select('id, status, due_date').neq('status', 'done').neq('status', 'cancelled'),
+      supabaseAdmin.from('nutrition_logs').select('calories').eq('log_date', today),
+      supabaseAdmin.from('calendar_events').select('title, start_time').gte('start_time', now.toISOString()).lte('start_time', addHours(now, 4).toISOString()).order('start_time', { ascending: true }).limit(3),
+      supabaseAdmin.from('journal_entries').select('mood').eq('entry_date', format(new Date(now.getTime() - 86400000), 'yyyy-MM-dd')).single(),
     ])
 
-    const habits = habitsRes.data ?? []
-    const completionsRes = await supabaseAdmin
-      .from('habit_completions')
-      .select('habit_id')
-      .eq('completed_date', today)
+    const totalHabits = habitsRes.data?.length ?? 0
+    const doneHabits = completionsRes.data?.length ?? 0
+    const focusMinutes = (sessionsRes.data ?? []).reduce((s, r) => s + (r.duration_minutes ?? 0), 0)
+    const sessionCount = sessionsRes.data?.length ?? 0
+    const allTasks = tasksRes.data ?? []
+    const pendingTasks = allTasks.length
+    const overdueTasks = allTasks.filter(t => t.due_date && new Date(t.due_date + 'T23:59:59') < now).length
+    const loggedCals = (nutritionRes.data ?? []).reduce((s, n) => s + (n.calories ?? 0), 0)
+    const upcomingEvents = (calendarRes.data ?? []).map(e => `${e.title} at ${format(new Date(e.start_time), 'h:mm a')}`).join(', ')
+    const yesterdayMood = journalRes.data?.mood ?? null
 
-    const completedIds = new Set((completionsRes.data ?? []).map((c) => c.habit_id))
-    const doneCount = habits.filter((h) => completedIds.has(h.id)).length
+    const prompt = `You are Kyler's Personal AI Operator. Generate a concise morning briefing (max 120 words) using this real data:
 
-    const contacts = contactsRes.data ?? []
-    const overdue = contacts.filter((c) => {
-      if (!c.last_contact_date) return true
-      const daysSince = Math.floor((Date.now() - new Date(c.last_contact_date).getTime()) / 86400000)
-      return daysSince > (c.contact_frequency_days ?? 30)
-    })
+Current time: ${timeStr}
+Habits: ${doneHabits}/${totalHabits} done today
+Tasks: ${pendingTasks} pending, ${overdueTasks} overdue
+Focus: ${sessionCount} sessions, ${focusMinutes}m today
+Nutrition: ${loggedCals}/2200 kcal logged
+Upcoming: ${upcomingEvents || 'nothing in the next 4 hours'}
+Journal mood yesterday: ${yesterdayMood ? `${yesterdayMood}/5` : 'no entry'}
 
-    const prompt = `You are Kyler's Personal AI Operator. Generate a concise morning briefing (max 150 words) that includes:
-1. ${greeting}, Kyler greeting with the current time
-2. Today's habit completion status: ${doneCount}/${habits.length} done
-3. ${overdue.length > 0 ? `Overdue contacts to reach out to: ${overdue.map((c) => c.name).join(', ')}` : 'All contacts are up to date'}
-4. A motivating one-liner based on recent progress
+Include:
+1. Time-appropriate greeting (use actual time of day: ${timeStr})
+2. Most important thing to do right now (based on tasks/calendar)
+3. One honest observation about trends (habits, nutrition, or tasks)
+4. One short energizing line to close
 
-Keep the tone direct, warm, and energizing. Format as plain text, no markdown. Today is ${format(new Date(), 'EEEE, MMMM d')}.`
+Tone: direct, warm, like a trusted advisor — not a chatbot. No bullet points. Plain text only.`
 
     const anthropic = new Anthropic({ apiKey: process.env.ANTHROPIC_API_KEY })
     const message = await anthropic.messages.create({
@@ -50,9 +57,8 @@ Keep the tone direct, warm, and energizing. Format as plain text, no markdown. T
 
     const briefing = message.content[0].type === 'text' ? message.content[0].text : ''
     return Response.json({ briefing })
-  } catch (err) {
-    const hour = new Date().getHours()
+  } catch {
     const greeting = hour < 12 ? 'Good morning' : hour < 17 ? 'Good afternoon' : 'Good evening'
-    return Response.json({ briefing: `${greeting}, Kyler. Your AI operator is warming up. Let's have a great day.` })
+    return Response.json({ briefing: `${greeting}, Kyler. Let's make today count.` })
   }
 }

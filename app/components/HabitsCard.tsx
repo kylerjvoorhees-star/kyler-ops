@@ -1,15 +1,10 @@
 'use client'
 
 import { useState, useEffect } from 'react'
-import { Flame, Plus, Loader2, Check } from 'lucide-react'
+import Drawer from './Drawer'
+import { format, subDays } from 'date-fns'
 
-interface Habit {
-  id: string
-  name: string
-  icon?: string
-  streak: number
-  completedToday: boolean
-}
+interface Habit { id: string; name: string; streak: number; completedToday: boolean }
 
 export default function HabitsCard() {
   const [habits, setHabits] = useState<Habit[]>([])
@@ -18,25 +13,24 @@ export default function HabitsCard() {
   const [adding, setAdding] = useState(false)
   const [showInput, setShowInput] = useState(false)
   const [toggling, setToggling] = useState<string | null>(null)
+  const [showHistory, setShowHistory] = useState(false)
+  const [historyData, setHistoryData] = useState<{ date: string; habit_id: string }[]>([])
 
   useEffect(() => { loadHabits() }, [])
 
   async function loadHabits() {
     setLoading(true)
     const res = await fetch('/api/habits').catch(() => null)
-    if (res?.ok) {
-      const data = await res.json()
-      setHabits(data.habits ?? [])
-    }
+    if (res?.ok) setHabits((await res.json()).habits ?? [])
     setLoading(false)
   }
 
   async function toggle(id: string) {
     setToggling(id)
     await fetch(`/api/habits/${id}/complete`, { method: 'PATCH' }).catch(() => null)
-    setHabits((prev) =>
-      prev.map((h) => h.id === id ? { ...h, completedToday: !h.completedToday, streak: h.completedToday ? Math.max(0, h.streak - 1) : h.streak + 1 } : h)
-    )
+    setHabits(prev => prev.map(h => h.id === id
+      ? { ...h, completedToday: !h.completedToday, streak: h.completedToday ? Math.max(0, h.streak - 1) : h.streak + 1 }
+      : h))
     setToggling(null)
   }
 
@@ -45,96 +39,124 @@ export default function HabitsCard() {
     if (!newHabit.trim()) return
     setAdding(true)
     await fetch('/api/habits', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
+      method: 'POST', headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ name: newHabit }),
     }).catch(() => null)
-    setNewHabit('')
-    setShowInput(false)
-    setAdding(false)
+    setNewHabit(''); setShowInput(false); setAdding(false)
     await loadHabits()
   }
 
-  const done = habits.filter((h) => h.completedToday).length
+  async function loadHistory() {
+    const res = await fetch('/api/habits/history').catch(() => null)
+    if (res?.ok) setHistoryData((await res.json()).completions ?? [])
+    setShowHistory(true)
+  }
+
+  const done = habits.filter(h => h.completedToday).length
   const total = habits.length
   const pct = total > 0 ? Math.round((done / total) * 100) : 0
-  const circumference = 2 * Math.PI * 22
+
+  // 30-day heatmap dates
+  const days30 = Array.from({ length: 30 }, (_, i) => format(subDays(new Date(), 29 - i), 'yyyy-MM-dd'))
 
   return (
-    <div className="rounded-2xl bg-white/5 backdrop-blur border border-white/10 p-5 flex flex-col gap-4 hover:border-white/20 transition-colors">
-      <div className="flex items-center gap-2">
-        <Flame size={16} className="text-orange-400" />
-        <span className="text-xs font-semibold tracking-widest text-white/60 uppercase">Habits</span>
-        <button onClick={() => setShowInput((v) => !v)} className="ml-auto p-1 hover:bg-white/10 rounded-md transition-colors">
-          <Plus size={14} className="text-white/40" />
-        </button>
-      </div>
-
-      {total > 0 && (
-        <div className="flex items-center gap-4">
-          <div className="relative w-14 h-14 shrink-0">
-            <svg className="w-14 h-14 -rotate-90" viewBox="0 0 60 60">
-              <circle cx="30" cy="30" r="22" fill="none" stroke="rgba(255,255,255,0.06)" strokeWidth="5" />
-              <circle
-                cx="30" cy="30" r="22" fill="none" stroke="#fb923c"
-                strokeWidth="5" strokeDasharray={circumference}
-                strokeDashoffset={circumference * (1 - pct / 100)}
-                strokeLinecap="round" className="transition-all duration-500"
-              />
-            </svg>
-            <div className="absolute inset-0 flex items-center justify-center text-sm font-bold">{pct}%</div>
-          </div>
-          <div>
-            <div className="text-lg font-bold">{done}<span className="text-white/30 text-sm font-normal">/{total}</span></div>
-            <div className="text-xs text-white/40">habits completed</div>
+    <>
+      <div style={{ background: '#071E30', borderRadius: '8px', padding: '18px', border: '0.5px solid #0A2840' }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '7px', marginBottom: '14px' }}>
+          <div style={{ width: '4px', height: '4px', borderRadius: '50%', background: '#1D9E75' }} />
+          <span style={{ fontSize: '9px', letterSpacing: '0.18em', color: '#378ADD', textTransform: 'uppercase' }}>Habits</span>
+          {total > 0 && (
+            <span style={{ fontSize: '10px', color: '#5DCAA5', marginLeft: '4px' }}>{done}/{total}</span>
+          )}
+          <div style={{ marginLeft: 'auto', display: 'flex', gap: '8px', alignItems: 'center' }}>
+            <button onClick={loadHistory} style={{ background: 'none', border: 'none', color: '#1E4060', cursor: 'pointer', fontSize: '12px' }}>↗</button>
+            <button onClick={() => setShowInput(v => !v)} style={{ background: 'none', border: 'none', color: '#1E4060', cursor: 'pointer', fontSize: '16px', lineHeight: 1 }}>+</button>
           </div>
         </div>
-      )}
 
-      {showInput && (
-        <form onSubmit={addHabit} className="flex gap-2">
-          <input
-            autoFocus type="text" value={newHabit}
-            onChange={(e) => setNewHabit(e.target.value)}
-            placeholder="New habit name"
-            className="flex-1 bg-white/5 border border-white/10 rounded-lg px-3 py-1.5 text-sm focus:outline-none focus:border-orange-500/50"
-          />
-          <button type="submit" disabled={adding} className="px-3 py-1.5 bg-orange-600 hover:bg-orange-500 disabled:opacity-40 rounded-lg text-sm transition-colors">
-            {adding ? <Loader2 size={14} className="animate-spin" /> : 'Add'}
-          </button>
-        </form>
-      )}
-
-      <div className="space-y-2 max-h-44 overflow-y-auto">
-        {loading ? (
-          <div className="flex items-center gap-2 text-white/30 text-sm">
-            <Loader2 size={14} className="animate-spin" /> Loading…
-          </div>
-        ) : habits.length === 0 ? (
-          <p className="text-sm text-white/30">No habits yet — add one to track.</p>
-        ) : (
-          habits.map((h) => (
-            <div key={h.id} className="flex items-center gap-3 py-1">
-              <button
-                onClick={() => toggle(h.id)}
-                disabled={toggling === h.id}
-                className={`w-6 h-6 rounded-md border flex items-center justify-center shrink-0 transition-all ${
-                  h.completedToday
-                    ? 'bg-orange-500 border-orange-500'
-                    : 'border-white/20 hover:border-orange-400'
-                }`}
-              >
-                {h.completedToday && <Check size={12} strokeWidth={3} />}
-              </button>
-              <span className={`text-sm flex-1 ${h.completedToday ? 'line-through text-white/30' : ''}`}>{h.name}</span>
-              <div className="flex items-center gap-1 text-xs text-orange-400">
-                <Flame size={11} />
-                {h.streak}
-              </div>
+        {/* Progress bar */}
+        {total > 0 && (
+          <div style={{ marginBottom: '12px' }}>
+            <div style={{ height: '3px', background: '#0A2840', borderRadius: '2px', overflow: 'hidden' }}>
+              <div style={{ height: '100%', width: `${pct}%`, background: '#1D9E75', borderRadius: '2px', transition: 'width 0.4s ease' }} />
             </div>
-          ))
+            <div style={{ fontSize: '9px', color: '#1E4060', marginTop: '4px', letterSpacing: '0.08em' }}>{pct}% COMPLETE</div>
+          </div>
         )}
+
+        {showInput && (
+          <form onSubmit={addHabit} style={{ display: 'flex', gap: '6px', marginBottom: '10px' }}>
+            <input
+              autoFocus value={newHabit} onChange={e => setNewHabit(e.target.value)} placeholder="New habit name"
+              style={{ flex: 1, background: '#040F1C', border: '0.5px solid #0A2840', borderRadius: '5px', padding: '7px 10px', fontSize: '11px', color: '#7AABCC', outline: 'none' }}
+            />
+            <button type="submit" disabled={adding}
+              style={{ background: '#0F6E56', borderRadius: '5px', padding: '6px 12px', fontSize: '11px', color: '#9FE1CB', border: 'none', cursor: 'pointer', opacity: adding ? 0.5 : 1 }}>
+              Add
+            </button>
+          </form>
+        )}
+
+        <div style={{ maxHeight: '200px', overflowY: 'auto' }}>
+          {loading ? (
+            <span style={{ fontSize: '11px', color: '#1E4060' }}>Loading…</span>
+          ) : habits.length === 0 ? (
+            <span style={{ fontSize: '12px', color: '#1E4060' }}>No habits yet — add one to track.</span>
+          ) : habits.map((h, i) => (
+            <div key={h.id} style={{
+              display: 'flex', alignItems: 'center', justifyContent: 'space-between',
+              padding: '9px 0',
+              borderBottom: i < habits.length - 1 ? '0.5px solid #0A2840' : 'none',
+            }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '9px' }}>
+                <button
+                  onClick={() => toggle(h.id)} disabled={toggling === h.id}
+                  style={{
+                    width: '13px', height: '13px', borderRadius: '3px', cursor: 'pointer',
+                    border: h.completedToday ? '1px solid #185FA5' : '0.5px solid #0A2840',
+                    background: h.completedToday ? '#0C2E50' : 'transparent',
+                    display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0,
+                  }}
+                >
+                  {h.completedToday && <div style={{ width: '5px', height: '5px', background: '#5DCAA5', borderRadius: '1px' }} />}
+                </button>
+                <span style={{ fontSize: '12px', color: h.completedToday ? '#7AABCC' : '#1E4060' }}>{h.name}</span>
+              </div>
+              <span style={{ fontSize: '10px', color: h.completedToday ? '#378ADD' : '#0E2030' }}>
+                {h.streak > 0 ? `${h.streak}d` : '—'}
+              </span>
+            </div>
+          ))}
+        </div>
       </div>
-    </div>
+
+      <Drawer open={showHistory} onClose={() => setShowHistory(false)} title="Habits History" dotColor="#1D9E75">
+        <div style={{ marginBottom: '16px' }}>
+          <div style={{ fontSize: '9px', letterSpacing: '0.08em', color: '#1E4060', textTransform: 'uppercase', marginBottom: '10px' }}>Last 30 Days</div>
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(10, 1fr)', gap: '4px' }}>
+            {days30.map(day => {
+              const completed = historyData.filter(c => c.date === day).length
+              const total = habits.length
+              const filled = completed > 0
+              return (
+                <div key={day} title={`${day}: ${completed}/${total}`} style={{
+                  width: '100%', aspectRatio: '1',
+                  background: filled ? '#0C2E50' : '#040F1C',
+                  borderRadius: '2px',
+                  border: `0.5px solid ${filled ? '#185FA5' : '#0A2840'}`,
+                }} />
+              )
+            })}
+          </div>
+        </div>
+        <div style={{ height: '0.5px', background: '#0A2840', marginBottom: '14px' }} />
+        {habits.map(h => (
+          <div key={h.id} style={{ display: 'flex', justifyContent: 'space-between', padding: '8px 0', borderBottom: '0.5px solid #0A2840' }}>
+            <span style={{ fontSize: '12px', color: '#7AABCC' }}>{h.name}</span>
+            <span style={{ fontSize: '10px', color: '#378ADD' }}>{h.streak}d streak</span>
+          </div>
+        ))}
+      </Drawer>
+    </>
   )
 }

@@ -6,14 +6,14 @@ const geistSans = Geist({ variable: '--font-geist-sans', subsets: ['latin'] })
 const geistMono = Geist_Mono({ variable: '--font-geist-mono', subsets: ['latin'] })
 
 export const metadata: Metadata = {
-  title: 'KylerOps — Personal AI OS',
-  description: 'Your personal AI life operating system',
+  title: 'KylerOps',
+  description: 'Personal AI Life OS',
 }
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
-    <html lang="en" className={`${geistSans.variable} ${geistMono.variable} h-full`}>
-      <body className="min-h-full bg-[#0a0a0f] text-white antialiased">{children}</body>
+    <html lang="en" className={`${geistSans.variable} ${geistMono.variable}`}>
+      <body style={{ background: '#010509', minHeight: '100vh' }}>{children}</body>
     </html>
   )
 }

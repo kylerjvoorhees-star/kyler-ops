@@ -1,66 +1,71 @@
-import { Suspense } from 'react'
 import OperatorCard from './components/OperatorCard'
 import SessionCard from './components/SessionCard'
 import CalendarCard from './components/CalendarCard'
 import HabitsCard from './components/HabitsCard'
 import CrmCard from './components/CrmCard'
 import NutritionCard from './components/NutritionCard'
+import TasksCard from './components/TasksCard'
+import JournalCard from './components/JournalCard'
+import GoalsCard from './components/GoalsCard'
 import FinanceCard from './components/FinanceCard'
-
-function CardSkeleton({ tall }: { tall?: boolean }) {
-  return (
-    <div
-      className={`rounded-2xl bg-white/5 border border-white/10 animate-pulse ${tall ? 'h-48' : 'h-72'}`}
-    />
-  )
-}
+import WeeklyReviewCard from './components/WeeklyReviewCard'
 
 export default function Dashboard() {
+  const today = new Date().toLocaleDateString('en-US', {
+    weekday: 'long', month: 'long', day: 'numeric',
+  })
+
   return (
-    <main className="min-h-screen p-4 md:p-6 lg:p-8">
-      <div className="max-w-[1600px] mx-auto space-y-4">
-        <header className="flex items-center justify-between mb-2">
-          <h1 className="text-xl font-semibold tracking-tight text-white/80">
-            KYLER<span className="text-violet-400">OPS</span>
-          </h1>
-          <span className="text-xs text-white/30 font-mono">
-            {new Date().toLocaleDateString('en-US', { weekday: 'long', month: 'long', day: 'numeric' })}
+    <div style={{
+      background: '#010509',
+      minHeight: '100vh',
+      padding: '20px',
+      border: '0.5px solid #0A1825',
+    }}>
+      {/* Header */}
+      <div style={{
+        display: 'flex', justifyContent: 'space-between', alignItems: 'center',
+        marginBottom: '22px',
+      }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+          <div style={{ width: '6px', height: '6px', borderRadius: '50%', background: '#378ADD' }} />
+          <span style={{ fontSize: '11px', letterSpacing: '0.14em', color: '#378ADD', textTransform: 'uppercase', fontWeight: 500 }}>
+            KylerOps
           </span>
-        </header>
-
-        {/* Row 1: Operator / Session / Calendar */}
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-          <Suspense fallback={<CardSkeleton />}>
-            <OperatorCard />
-          </Suspense>
-          <Suspense fallback={<CardSkeleton />}>
-            <SessionCard />
-          </Suspense>
-          <Suspense fallback={<CardSkeleton />}>
-            <CalendarCard />
-          </Suspense>
         </div>
-
-        {/* Row 2: Habits / CRM / Nutrition */}
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-          <Suspense fallback={<CardSkeleton />}>
-            <HabitsCard />
-          </Suspense>
-          <Suspense fallback={<CardSkeleton />}>
-            <CrmCard />
-          </Suspense>
-          <Suspense fallback={<CardSkeleton />}>
-            <NutritionCard />
-          </Suspense>
-        </div>
-
-        {/* Row 3: Finance full-width */}
-        <div className="grid grid-cols-1">
-          <Suspense fallback={<CardSkeleton tall />}>
-            <FinanceCard />
-          </Suspense>
-        </div>
+        <span style={{ fontSize: '11px', color: '#1E4060' }}>{today}</span>
       </div>
-    </main>
+
+      {/* Row 1: Operator | Session | Calendar */}
+      <div className="dashboard-grid">
+        <OperatorCard />
+        <SessionCard />
+        <CalendarCard />
+      </div>
+
+      {/* Row 2: Habits | CRM | Nutrition */}
+      <div className="dashboard-grid" style={{ marginTop: '14px' }}>
+        <HabitsCard />
+        <CrmCard />
+        <NutritionCard />
+      </div>
+
+      {/* Row 3: Tasks | Journal | Goals */}
+      <div className="dashboard-grid" style={{ marginTop: '14px' }}>
+        <TasksCard />
+        <JournalCard />
+        <GoalsCard />
+      </div>
+
+      {/* Row 4: Finance Pulse (full width) */}
+      <div style={{ marginTop: '14px' }}>
+        <FinanceCard />
+      </div>
+
+      {/* Row 5: Weekly Review (full width) */}
+      <div style={{ marginTop: '14px' }}>
+        <WeeklyReviewCard />
+      </div>
+    </div>
   )
 }

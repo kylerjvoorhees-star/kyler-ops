@@ -1,22 +1,12 @@
 'use client'
 
 import { useState, useEffect } from 'react'
-import { CalendarDays, Plus, Loader2, Clock } from 'lucide-react'
 import { format } from 'date-fns'
 
-interface CalEvent {
-  id: string
-  title: string
-  start_time: string
-  end_time?: string
-  event_type: 'work' | 'personal' | 'health'
-  notes?: string
-}
+interface CalEvent { id: string; title: string; start_time: string; end_time?: string; event_type: string }
 
 const typeColors: Record<string, string> = {
-  work: 'bg-blue-500/20 border-blue-500/40 text-blue-300',
-  personal: 'bg-green-500/20 border-green-500/40 text-green-300',
-  health: 'bg-orange-500/20 border-orange-500/40 text-orange-300',
+  work: '#185FA5', personal: '#1D9E75', health: '#5DCAA5',
 }
 
 export default function CalendarCard() {
@@ -25,7 +15,7 @@ export default function CalendarCard() {
   const [showAdd, setShowAdd] = useState(false)
   const [newTitle, setNewTitle] = useState('')
   const [newTime, setNewTime] = useState('')
-  const [newType, setNewType] = useState<'work' | 'personal' | 'health'>('personal')
+  const [newType, setNewType] = useState('personal')
   const [saving, setSaving] = useState(false)
 
   useEffect(() => { loadEvents() }, [])
@@ -33,10 +23,7 @@ export default function CalendarCard() {
   async function loadEvents() {
     setLoading(true)
     const res = await fetch('/api/calendar/today').catch(() => null)
-    if (res?.ok) {
-      const data = await res.json()
-      setEvents(data.events ?? [])
-    }
+    if (res?.ok) setEvents((await res.json()).events ?? [])
     setLoading(false)
   }
 
@@ -48,90 +35,67 @@ export default function CalendarCard() {
     await fetch('/api/calendar/events', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        title: newTitle,
-        start_time: `${today}T${newTime}:00`,
-        event_type: newType,
-      }),
+      body: JSON.stringify({ title: newTitle, start_time: `${today}T${newTime}:00`, event_type: newType }),
     }).catch(() => null)
-    setNewTitle('')
-    setNewTime('')
-    setShowAdd(false)
-    setSaving(false)
+    setNewTitle(''); setNewTime(''); setShowAdd(false); setSaving(false)
     await loadEvents()
   }
 
   return (
-    <div className="rounded-2xl bg-white/5 backdrop-blur border border-white/10 p-5 flex flex-col gap-4 hover:border-white/20 transition-colors">
-      <div className="flex items-center gap-2">
-        <CalendarDays size={16} className="text-blue-400" />
-        <span className="text-xs font-semibold tracking-widest text-white/60 uppercase">Calendar</span>
+    <div style={{ background: '#071E30', borderRadius: '8px', padding: '18px', border: '0.5px solid #0A2840' }}>
+      <div style={{ display: 'flex', alignItems: 'center', gap: '7px', marginBottom: '14px' }}>
+        <div style={{ width: '4px', height: '4px', borderRadius: '50%', background: '#378ADD' }} />
+        <span style={{ fontSize: '9px', letterSpacing: '0.18em', color: '#378ADD', textTransform: 'uppercase' }}>Calendar</span>
         <button
-          onClick={() => setShowAdd((v) => !v)}
-          className="ml-auto p-1 hover:bg-white/10 rounded-md transition-colors"
-        >
-          <Plus size={14} className="text-white/40" />
-        </button>
+          onClick={() => setShowAdd(v => !v)}
+          style={{ marginLeft: 'auto', background: 'none', border: 'none', color: '#1E4060', cursor: 'pointer', fontSize: '16px', lineHeight: 1 }}
+        >+</button>
       </div>
 
       {showAdd && (
-        <form onSubmit={addEvent} className="space-y-2">
+        <form onSubmit={addEvent} style={{ display: 'flex', flexDirection: 'column', gap: '6px', marginBottom: '12px' }}>
           <input
-            autoFocus
-            type="text"
-            value={newTitle}
-            onChange={(e) => setNewTitle(e.target.value)}
-            placeholder="Event title"
-            className="w-full bg-white/5 border border-white/10 rounded-lg px-3 py-1.5 text-sm focus:outline-none focus:border-blue-500/50"
+            autoFocus value={newTitle} onChange={e => setNewTitle(e.target.value)} placeholder="Event title"
+            style={{ background: '#040F1C', border: '0.5px solid #0A2840', borderRadius: '5px', padding: '7px 10px', fontSize: '11px', color: '#7AABCC', outline: 'none', width: '100%' }}
           />
-          <div className="flex gap-2">
-            <input
-              type="time"
-              value={newTime}
-              onChange={(e) => setNewTime(e.target.value)}
-              className="flex-1 bg-white/5 border border-white/10 rounded-lg px-3 py-1.5 text-sm focus:outline-none focus:border-blue-500/50"
-            />
-            <select
-              value={newType}
-              onChange={(e) => setNewType(e.target.value as 'work' | 'personal' | 'health')}
-              className="bg-white/5 border border-white/10 rounded-lg px-2 py-1.5 text-sm focus:outline-none"
-            >
+          <div style={{ display: 'flex', gap: '6px' }}>
+            <input type="time" value={newTime} onChange={e => setNewTime(e.target.value)}
+              style={{ flex: 1, background: '#040F1C', border: '0.5px solid #0A2840', borderRadius: '5px', padding: '7px 10px', fontSize: '11px', color: '#7AABCC', outline: 'none' }} />
+            <select value={newType} onChange={e => setNewType(e.target.value)}
+              style={{ background: '#040F1C', border: '0.5px solid #0A2840', borderRadius: '5px', padding: '7px 8px', fontSize: '11px', color: '#7AABCC', outline: 'none' }}>
               <option value="work">Work</option>
               <option value="personal">Personal</option>
               <option value="health">Health</option>
             </select>
           </div>
-          <button
-            type="submit"
-            disabled={saving}
-            className="w-full py-1.5 bg-blue-600 hover:bg-blue-500 disabled:opacity-40 rounded-lg text-sm transition-colors"
-          >
+          <button type="submit" disabled={saving}
+            style={{ background: '#0F6E56', borderRadius: '5px', padding: '6px 14px', fontSize: '11px', color: '#9FE1CB', border: 'none', cursor: 'pointer', opacity: saving ? 0.5 : 1 }}>
             {saving ? 'Adding…' : 'Add Event'}
           </button>
         </form>
       )}
 
-      <div className="space-y-2 max-h-52 overflow-y-auto">
+      <div style={{ display: 'flex', flexDirection: 'column', gap: '0', maxHeight: '200px', overflowY: 'auto' }}>
         {loading ? (
-          <div className="flex items-center gap-2 text-white/30 text-sm">
-            <Loader2 size={14} className="animate-spin" /> Loading…
-          </div>
+          <span style={{ fontSize: '11px', color: '#1E4060' }}>Loading…</span>
         ) : events.length === 0 ? (
-          <p className="text-sm text-white/30">No events today — clear schedule.</p>
-        ) : (
-          events.map((ev) => (
-            <div key={ev.id} className={`flex items-start gap-3 rounded-xl border px-3 py-2 ${typeColors[ev.event_type]}`}>
-              <Clock size={12} className="mt-0.5 shrink-0 opacity-60" />
-              <div className="min-w-0">
-                <div className="text-sm font-medium truncate">{ev.title}</div>
-                <div className="text-xs opacity-60">
-                  {format(new Date(ev.start_time), 'h:mm a')}
-                  {ev.end_time && ` – ${format(new Date(ev.end_time), 'h:mm a')}`}
-                </div>
+          <span style={{ fontSize: '12px', color: '#1E4060' }}>Clear schedule today.</span>
+        ) : events.map((ev, i) => (
+          <div key={ev.id} style={{
+            display: 'flex', alignItems: 'flex-start', gap: '10px',
+            padding: '9px 0',
+            borderBottom: i < events.length - 1 ? '0.5px solid #0A2840' : 'none',
+          }}>
+            <div style={{ width: '3px', height: '32px', borderRadius: '2px', background: typeColors[ev.event_type] ?? '#378ADD', flexShrink: 0, marginTop: '2px' }} />
+            <div>
+              <div style={{ fontSize: '12px', color: '#7AABCC' }}>{ev.title}</div>
+              <div style={{ fontSize: '10px', color: '#1E4060', marginTop: '2px' }}>
+                {format(new Date(ev.start_time), 'h:mm a')}
+                {ev.end_time && ` — ${format(new Date(ev.end_time), 'h:mm a')}`}
               </div>
             </div>
-          ))
-        )}
+          </div>
+        ))}
       </div>
     </div>
   )

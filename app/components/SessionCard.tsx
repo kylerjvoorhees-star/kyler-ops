@@ -1,7 +1,8 @@
 'use client'
 
 import { useState, useEffect, useRef } from 'react'
-import { Timer, Play, Pause, RotateCcw, CheckCircle } from 'lucide-react'
+import Drawer from './Drawer'
+import { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer } from 'recharts'
 
 const WORK_MINS = 25
 const BREAK_MINS = 5
@@ -14,13 +15,15 @@ export default function SessionCard() {
   const [running, setRunning] = useState(false)
   const [sessionsToday, setSessionsToday] = useState(0)
   const [focusMinutes, setFocusMinutes] = useState(0)
+  const [showHistory, setShowHistory] = useState(false)
+  const [historyData, setHistoryData] = useState<{ date: string; minutes: number }[]>([])
   const intervalRef = useRef<ReturnType<typeof setInterval> | null>(null)
   const startedAtRef = useRef<Date | null>(null)
 
   useEffect(() => {
     if (running) {
       intervalRef.current = setInterval(() => {
-        setSecondsLeft((s) => {
+        setSecondsLeft(s => {
           if (s <= 1) {
             clearInterval(intervalRef.current!)
             setRunning(false)
@@ -44,9 +47,8 @@ export default function SessionCard() {
   }, [running, mode])
 
   async function completeSession() {
-    const duration = WORK_MINS
-    setSessionsToday((n) => n + 1)
-    setFocusMinutes((n) => n + duration)
+    setSessionsToday(n => n + 1)
+    setFocusMinutes(n => n + WORK_MINS)
     if (startedAtRef.current) {
       await fetch('/api/sessions', {
         method: 'POST',
@@ -54,114 +56,134 @@ export default function SessionCard() {
         body: JSON.stringify({
           started_at: startedAtRef.current.toISOString(),
           ended_at: new Date().toISOString(),
-          task,
-          duration_minutes: duration,
-          type: 'work',
+          task, duration_minutes: WORK_MINS, type: 'work',
         }),
       }).catch(() => null)
     }
   }
 
-  function handleStart() {
-    if (!running) startedAtRef.current = new Date()
-    setRunning((r) => !r)
+  async function loadHistory() {
+    const res = await fetch('/api/sessions/history').catch(() => null)
+    if (res?.ok) {
+      const data = await res.json()
+      setHistoryData(data.daily ?? [])
+    }
+    setShowHistory(true)
   }
 
-  function handleReset() {
-    setRunning(false)
-    setMode('work')
-    setSecondsLeft(WORK_MINS * 60)
+  function handleStart() {
+    if (!running) startedAtRef.current = new Date()
+    setRunning(r => !r)
   }
+
+  function handleReset() { setRunning(false); setMode('work'); setSecondsLeft(WORK_MINS * 60) }
 
   const mins = String(Math.floor(secondsLeft / 60)).padStart(2, '0')
   const secs = String(secondsLeft % 60).padStart(2, '0')
   const totalSecs = mode === 'work' ? WORK_MINS * 60 : BREAK_MINS * 60
   const progress = 1 - secondsLeft / totalSecs
-  const circumference = 2 * Math.PI * 42
+  const r = 42, C = 2 * Math.PI * r
 
   return (
-    <div className="rounded-2xl bg-white/5 backdrop-blur border border-white/10 p-5 flex flex-col gap-4 hover:border-white/20 transition-colors">
-      <div className="flex items-center gap-2">
-        <Timer size={16} className="text-cyan-400" />
-        <span className="text-xs font-semibold tracking-widest text-white/60 uppercase">Session</span>
-        <span className={`ml-auto text-xs px-2 py-0.5 rounded-full ${mode === 'work' ? 'bg-cyan-500/20 text-cyan-400' : 'bg-green-500/20 text-green-400'}`}>
-          {mode === 'work' ? 'FOCUS' : 'BREAK'}
-        </span>
-      </div>
+    <>
+      <div style={{ background: '#071E30', borderRadius: '8px', padding: '18px', border: '0.5px solid #0A2840' }}>
+        {/* Header */}
+        <div style={{ display: 'flex', alignItems: 'center', gap: '7px', marginBottom: '14px' }}>
+          <div style={{ width: '4px', height: '4px', borderRadius: '50%', background: '#1D9E75' }} />
+          <span style={{ fontSize: '9px', letterSpacing: '0.18em', color: '#378ADD', textTransform: 'uppercase' }}>Session</span>
+          <span style={{
+            marginLeft: '4px', fontSize: '9px', padding: '1px 6px',
+            background: mode === 'work' ? '#0C3A2A' : '#0C2E50',
+            color: mode === 'work' ? '#5DCAA5' : '#378ADD',
+            borderRadius: '20px', letterSpacing: '0.1em',
+          }}>{mode === 'work' ? 'FOCUS' : 'BREAK'}</span>
+          <button onClick={loadHistory} style={{ marginLeft: 'auto', background: 'none', border: 'none', color: '#1E4060', cursor: 'pointer', fontSize: '12px' }}>↗</button>
+        </div>
 
-      <div className="flex items-center gap-6">
-        <div className="relative w-24 h-24 shrink-0">
-          <svg className="w-24 h-24 -rotate-90" viewBox="0 0 100 100">
-            <circle cx="50" cy="50" r="42" fill="none" stroke="rgba(255,255,255,0.06)" strokeWidth="6" />
-            <circle
-              cx="50" cy="50" r="42" fill="none"
-              stroke={mode === 'work' ? '#22d3ee' : '#4ade80'}
-              strokeWidth="6"
-              strokeDasharray={circumference}
-              strokeDashoffset={circumference * (1 - progress)}
-              strokeLinecap="round"
-              className="transition-all duration-1000"
-            />
-          </svg>
-          <div className="absolute inset-0 flex items-center justify-center font-mono text-xl font-bold">
-            {mins}:{secs}
+        {/* Timer ring + controls */}
+        <div style={{ display: 'flex', alignItems: 'center', gap: '18px' }}>
+          <div style={{ position: 'relative', width: '96px', height: '96px', flexShrink: 0 }}>
+            <svg width="96" height="96" style={{ transform: 'rotate(-90deg)' }}>
+              <circle cx="48" cy="48" r={r} fill="none" stroke="#0A2840" strokeWidth="5" />
+              <circle cx="48" cy="48" r={r} fill="none"
+                stroke={mode === 'work' ? '#1D9E75' : '#378ADD'} strokeWidth="5"
+                strokeDasharray={C} strokeDashoffset={C * (1 - progress)}
+                strokeLinecap="round" style={{ transition: 'stroke-dashoffset 1s linear' }} />
+            </svg>
+            <div style={{
+              position: 'absolute', inset: 0, display: 'flex',
+              alignItems: 'center', justifyContent: 'center',
+              fontFamily: 'var(--font-geist-mono)', fontSize: '20px',
+              fontWeight: 200, color: '#5DCAA5',
+            }}>
+              {mins}:{secs}
+            </div>
+          </div>
+
+          <div style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: '10px' }}>
+            {editingTask ? (
+              <input
+                autoFocus value={task}
+                onChange={e => setTask(e.target.value)}
+                onBlur={() => setEditingTask(false)}
+                onKeyDown={e => e.key === 'Enter' && setEditingTask(false)}
+                placeholder="Current task…"
+                style={{ background: '#040F1C', border: '0.5px solid #0A2840', borderRadius: '5px', padding: '6px 8px', fontSize: '11px', color: '#7AABCC', outline: 'none', width: '100%' }}
+              />
+            ) : (
+              <button onClick={() => setEditingTask(true)} style={{ background: 'none', border: 'none', textAlign: 'left', fontSize: '12px', color: task ? '#7AABCC' : '#1E4060', cursor: 'pointer', padding: 0 }}>
+                {task || 'Set task…'}
+              </button>
+            )}
+            <div style={{ display: 'flex', gap: '6px' }}>
+              <button onClick={handleStart} style={{ background: '#0F6E56', borderRadius: '5px', padding: '6px 14px', fontSize: '11px', color: '#9FE1CB', border: 'none', cursor: 'pointer' }}>
+                {running ? '⏸ Pause' : '▶ Start'}
+              </button>
+              <button onClick={handleReset} style={{ background: 'transparent', border: '0.5px solid #0A2840', borderRadius: '5px', padding: '6px 10px', fontSize: '11px', color: '#1E4060', cursor: 'pointer' }}>
+                ↺
+              </button>
+            </div>
           </div>
         </div>
 
-        <div className="flex-1 space-y-3">
-          {editingTask ? (
-            <input
-              autoFocus
-              type="text"
-              value={task}
-              onChange={(e) => setTask(e.target.value)}
-              onBlur={() => setEditingTask(false)}
-              onKeyDown={(e) => e.key === 'Enter' && setEditingTask(false)}
-              className="w-full bg-white/5 border border-white/10 rounded-lg px-3 py-1.5 text-sm focus:outline-none focus:border-cyan-500/50"
-              placeholder="What are you working on?"
-            />
-          ) : (
-            <button
-              onClick={() => setEditingTask(true)}
-              className="text-sm text-white/60 hover:text-white transition-colors text-left"
-            >
-              {task || 'Set task…'}
-            </button>
-          )}
+        <div style={{ height: '0.5px', background: '#0A2840', margin: '14px 0' }} />
 
-          <div className="flex gap-2">
-            <button
-              onClick={handleStart}
-              className="flex items-center gap-1.5 px-3 py-1.5 bg-cyan-600 hover:bg-cyan-500 rounded-lg text-sm transition-colors"
-            >
-              {running ? <Pause size={14} /> : <Play size={14} />}
-              {running ? 'Pause' : 'Start'}
-            </button>
-            <button
-              onClick={handleReset}
-              className="px-3 py-1.5 bg-white/10 hover:bg-white/15 rounded-lg text-sm transition-colors"
-            >
-              <RotateCcw size={14} />
-            </button>
-          </div>
+        {/* Stats */}
+        <div style={{ display: 'flex', gap: '24px' }}>
+          {[
+            { val: sessionsToday, label: 'SESSIONS' },
+            { val: `${focusMinutes}m`, label: 'FOCUS' },
+          ].map(({ val, label }) => (
+            <div key={label}>
+              <div style={{ fontSize: '16px', fontWeight: 300, color: '#5DCAA5' }}>{val}</div>
+              <div style={{ fontSize: '9px', letterSpacing: '0.08em', color: '#1E4060', textTransform: 'uppercase', marginTop: '2px' }}>{label}</div>
+            </div>
+          ))}
         </div>
       </div>
 
-      <div className="flex gap-4 pt-1 border-t border-white/5">
-        <div className="text-center">
-          <div className="text-lg font-bold text-cyan-400">{sessionsToday}</div>
-          <div className="text-xs text-white/40">sessions today</div>
-        </div>
-        <div className="text-center">
-          <div className="text-lg font-bold text-cyan-400">{focusMinutes}m</div>
-          <div className="text-xs text-white/40">focus time</div>
-        </div>
-        {task && sessionsToday > 0 && (
-          <div className="ml-auto flex items-center gap-1 text-xs text-green-400">
-            <CheckCircle size={12} /> In the zone
+      <Drawer open={showHistory} onClose={() => setShowHistory(false)} title="Session History" dotColor="#1D9E75">
+        <div style={{ marginBottom: '20px' }}>
+          <div style={{ fontSize: '9px', letterSpacing: '0.08em', color: '#1E4060', textTransform: 'uppercase', marginBottom: '12px' }}>Daily Focus Minutes — Last 14 Days</div>
+          <div style={{ height: '160px' }}>
+            <ResponsiveContainer width="100%" height="100%">
+              <BarChart data={historyData} margin={{ top: 0, right: 0, bottom: 0, left: 0 }}>
+                <XAxis dataKey="date" tick={{ fontSize: 9, fill: '#1E4060' }} tickFormatter={d => d.slice(5)} />
+                <YAxis hide />
+                <Tooltip
+                  contentStyle={{ background: '#071E30', border: '0.5px solid #0A2840', borderRadius: '5px', fontSize: '11px' }}
+                  labelStyle={{ color: '#378ADD' }} itemStyle={{ color: '#7AABCC' }}
+                />
+                <Bar dataKey="minutes" fill="#1D9E75" radius={[2, 2, 0, 0]} />
+              </BarChart>
+            </ResponsiveContainer>
           </div>
-        )}
-      </div>
-    </div>
+        </div>
+        <div style={{ height: '0.5px', background: '#0A2840', marginBottom: '16px' }} />
+        <div style={{ fontSize: '12px', color: '#1E4060' }}>
+          {historyData.length === 0 ? 'No session data yet. Start your first Pomodoro to track focus.' : `Total sessions tracked across ${historyData.length} days.`}
+        </div>
+      </Drawer>
+    </>
   )
 }
