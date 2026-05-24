@@ -4,7 +4,7 @@ import { supabaseAdmin } from '@/lib/supabase'
 // To register webhook after deploy, run:
 // curl -X POST "https://api.telegram.org/bot{TOKEN}/setWebhook" \
 //   -H "Content-Type: application/json" \
-//   -d '{"url": "https://kylerops.com/api/telegram/webhook"}'
+//   -d '{"url": "https://YOUR_DOMAIN/api/telegram/webhook"}'
 
 function randomUID(): string {
   return crypto.randomUUID()

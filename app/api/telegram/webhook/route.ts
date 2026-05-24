@@ -3,7 +3,7 @@
 // Setup (run once after deploy):
 //   curl -X POST "https://api.telegram.org/bot{TELEGRAM_BOT_TOKEN}/setWebhook" \
 //     -H "Content-Type: application/json" \
-//     -d '{"url": "https://kylerops.com/api/telegram/webhook"}'
+//     -d '{"url": "https://YOUR_DOMAIN/api/telegram/webhook"}'
 //
 // Required env vars: TELEGRAM_BOT_TOKEN, TELEGRAM_CHAT_ID
 
