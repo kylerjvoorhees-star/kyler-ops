@@ -1,11 +1,15 @@
 import { routeOperatorCommand } from '@/lib/operatorRoute'
 
 async function sendTelegram(chatId: string, text: string): Promise<void> {
-  await fetch('https://api.telegram.org/bot' + process.env.TELEGRAM_BOT_TOKEN + '/sendMessage', {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ chat_id: chatId, text }),
-  })
+  try {
+    await fetch('https://api.telegram.org/bot' + process.env.TELEGRAM_BOT_TOKEN + '/sendMessage', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ chat_id: chatId, text }),
+    })
+  } catch (e) {
+    console.error('sendTelegram failed:', e)
+  }
 }
 
 export async function POST(request: Request) {
@@ -26,14 +30,28 @@ export async function POST(request: Request) {
     }
 
     const text = message.text as string
-    const result = await routeOperatorCommand(text)
 
-    let replyText = 'Done — ' + result.confirmation
-    if (result.action === 'general_query' && result.answer) {
-      replyText = result.answer
+    if (text.trim().toLowerCase() === 'ping') {
+      await sendTelegram(incomingChatId, 'pong - KylerOps is live')
+      return Response.json({ ok: true })
     }
-    if (result.route && result.route !== 'null' && result.route !== null) {
-      replyText += '\n\nHead to kylerops.com/' + (result.route === 'home' ? '' : result.route)
+
+    const timeoutPromise = new Promise<never>((_, reject) =>
+      setTimeout(() => reject(new Error('operator timeout')), 8000)
+    )
+
+    let replyText: string
+    try {
+      const result = await Promise.race([routeOperatorCommand(text), timeoutPromise])
+      replyText = result.action === 'general_query' && result.answer
+        ? result.answer
+        : 'Done - ' + result.confirmation
+      if (result.route && result.route !== 'null' && result.route !== null) {
+        replyText += '\n\nHead to kylerops.com/' + (result.route === 'home' ? '' : result.route)
+      }
+    } catch (err) {
+      console.error('routeOperatorCommand error:', err)
+      replyText = 'KylerOps received your message but ran into an error. Try again?'
     }
 
     await sendTelegram(incomingChatId, replyText)
