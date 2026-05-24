@@ -51,7 +51,7 @@ export async function POST(request: Request) {
       }
     } catch (err) {
       console.error('routeOperatorCommand error:', err)
-      replyText = 'KylerOps received your message but ran into an error. Try again?'
+      replyText = 'KylerOps error: ' + String(err).slice(0, 200)
     }
 
     await sendTelegram(incomingChatId, replyText)
