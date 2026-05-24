@@ -75,7 +75,7 @@ export async function POST(request: Request) {
     const endTimestamp = allDay ? startDate + 'T23:59:59' : startDate + 'T' + (endTime ?? startTime ?? '10:00') + ':00'
     const { data, error } = await supabaseAdmin
       .from('calendar_events')
-      .insert({ title, start_time: startTimestamp, end_time: endTimestamp, event_type: 'personal', description: notes ?? null })
+      .insert({ title, start_time: startTimestamp, end_time: endTimestamp, event_type: 'personal', notes: notes ?? null })
       .select()
       .single()
     if (error) return Response.json({ error: error.message }, { status: 500 })
