@@ -2,11 +2,13 @@ import Anthropic from '@anthropic-ai/sdk'
 import { supabaseAdmin } from '@/lib/supabase'
 import { format, addHours } from 'date-fns'
 
-export async function GET() {
+export async function GET(request: Request) {
+  const { searchParams } = new URL(request.url)
+  const tz = searchParams.get('tz') || 'America/Denver'
   const now = new Date()
-  const today = format(now, 'yyyy-MM-dd')
-  const hour = now.getHours()
-  const timeStr = format(now, 'h:mm a')
+  const today = new Intl.DateTimeFormat('en-CA', { timeZone: tz }).format(now)
+  const hour = parseInt(new Intl.DateTimeFormat('en-US', { timeZone: tz, hour: 'numeric', hour12: false }).format(now))
+  const timeStr = new Intl.DateTimeFormat('en-US', { timeZone: tz, hour: 'numeric', minute: '2-digit', hour12: true }).format(now)
 
   try {
     const [habitsRes, completionsRes, sessionsRes, tasksRes, nutritionRes, calendarRes, journalRes] = await Promise.all([

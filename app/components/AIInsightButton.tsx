@@ -41,9 +41,14 @@ export default function AIInsightButton({ context, data }: AIInsightButtonProps)
           color: loading ? '#555' : '#C9933A',
           cursor: 'pointer', fontSize: '13px', padding: '0 2px',
           lineHeight: 1, transition: 'color 0.15s',
+          display: 'flex', alignItems: 'center',
         }}
       >
-        ✦
+        <svg width="13" height="13" viewBox="0 0 13 13" fill="none" xmlns="http://www.w3.org/2000/svg" style={{ opacity: loading ? 0.35 : 1 }}>
+          <ellipse cx="6.5" cy="6.5" rx="5.5" ry="3.2" stroke="currentColor" strokeWidth="1.1"/>
+          <circle cx="6.5" cy="6.5" r="1.8" fill="currentColor"/>
+          <circle cx="7" cy="6" r="0.5" fill="#000"/>
+        </svg>
       </button>
       {open && (
         <div style={{

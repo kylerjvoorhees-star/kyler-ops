@@ -19,7 +19,7 @@ export default function OperatorCard() {
   const [telegramConnected, setTelegramConnected] = useState(false)
 
   useEffect(() => {
-    fetch('/api/operator/briefing')
+    fetch(`/api/operator/briefing?tz=${encodeURIComponent(Intl.DateTimeFormat().resolvedOptions().timeZone)}`)
       .then(r => r.json())
       .then(d => setBriefing(d.briefing ?? ''))
       .catch(() => setBriefing('Ready when you are.'))

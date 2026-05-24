@@ -1,16 +1,7 @@
-// KylerOps Telegram Webhook — routes messages to Operator
-//
-// Setup (run once after deploy):
-//   curl -X POST "https://api.telegram.org/bot{TELEGRAM_BOT_TOKEN}/setWebhook" \
-//     -H "Content-Type: application/json" \
-//     -d '{"url": "https://YOUR_DOMAIN/api/telegram/webhook"}'
-//
-// Required env vars: TELEGRAM_BOT_TOKEN, TELEGRAM_CHAT_ID
-
 import { routeOperatorCommand } from '@/lib/operatorRoute'
 
 async function sendTelegram(chatId: string, text: string): Promise<void> {
-  await fetch(`https://api.telegram.org/bot${process.env.TELEGRAM_BOT_TOKEN}/sendMessage`, {
+  await fetch('https://api.telegram.org/bot' + process.env.TELEGRAM_BOT_TOKEN + '/sendMessage', {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({ chat_id: chatId, text }),
@@ -21,35 +12,40 @@ export async function POST(request: Request) {
   try {
     const body = await request.json()
     const message = body?.message
+    if (!message?.text) return Response.json({ ok: true })
 
-    // Ignore messages from unknown senders
-    if (!message || message.chat.id.toString() !== process.env.TELEGRAM_CHAT_ID) {
+    const incomingChatId = message.chat.id.toString()
+    const expectedChatId = process.env.TELEGRAM_CHAT_ID
+
+    // If TELEGRAM_CHAT_ID is set but does not match, tell the sender their ID
+    // so the env var can be corrected — do NOT silently drop.
+    if (expectedChatId && incomingChatId !== expectedChatId) {
+      await sendTelegram(incomingChatId,
+        'KylerOps: unauthorized. Your chat ID is ' + incomingChatId +
+        '. Update TELEGRAM_CHAT_ID in Netlify to this value.'
+      )
       return Response.json({ ok: true })
     }
 
+    // If TELEGRAM_CHAT_ID is not set at all, respond to any sender (open mode)
     const text = message.text as string
-    if (!text) return Response.json({ ok: true })
 
-    // Route through Operator
     const result = await routeOperatorCommand(text)
 
-    let replyText = `✅ ${result.confirmation}`
-
-    // If general query, include the answer
+    let replyText = 'Done — ' + result.confirmation
     if (result.action === 'general_query' && result.answer) {
       replyText = result.answer
     }
-
-    // If a page route is suggested, mention it
     if (result.route && result.route !== 'null' && result.route !== null) {
-      replyText += `\n\n→ Head to kylerops.com/${result.route === 'home' ? '' : result.route}`
+      replyText += '
+
+Head to kylerops.com/' + (result.route === 'home' ? '' : result.route)
     }
 
-    await sendTelegram(message.chat.id.toString(), replyText)
-
+    await sendTelegram(incomingChatId, replyText)
     return Response.json({ ok: true })
   } catch (err) {
     console.error('Telegram webhook error:', err)
-    return Response.json({ ok: true }) // Always return 200 to Telegram
+    return Response.json({ ok: true })
   }
 }
