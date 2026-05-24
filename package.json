@@ -4,7 +4,7 @@
   "private": true,
   "scripts": {
     "dev": "next dev",
-    "build": "next build --webpack",
+    "build": "next build",
     "start": "next start",
     "lint": "eslint"
   },
@@ -17,11 +17,11 @@
     "date-fns": "^4.3.0",
     "framer-motion": "^12.40.0",
     "lucide-react": "^1.16.0",
-    "next": "16.2.6",
+    "next": "15.3.2",
     "openai": "^6.39.0",
     "pdf-parse": "^2.4.5",
-    "react": "19.2.4",
-    "react-dom": "19.2.4",
+    "react": "^19",
+    "react-dom": "^19",
     "recharts": "^3.8.1",
     "tsdav": "^2.2.2"
   },
@@ -32,7 +32,7 @@
     "@types/react": "^19",
     "@types/react-dom": "^19",
     "eslint": "^9",
-    "eslint-config-next": "16.2.6",
+    "eslint-config-next": "15.3.2",
     "pg": "^8.21.0",
     "tailwindcss": "^4",
     "typescript": "^5"
