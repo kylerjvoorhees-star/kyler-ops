@@ -1,6 +1,7 @@
 'use client'
 
 import { useState, useEffect, useRef } from 'react'
+import Link from 'next/link'
 import Drawer from './Drawer'
 import Card from './Card'
 import { format } from 'date-fns'
@@ -108,7 +109,9 @@ export default function JournalCard() {
       <Card>
         <div style={{ display: 'flex', alignItems: 'center', gap: '7px', marginBottom: '14px' }}>
           <div style={{ width: '5px', height: '5px', borderRadius: '50%', background: '#C9933A' }} />
-          <span style={{ fontSize: '13px', fontWeight: 700, letterSpacing: '0.12em', color: '#ffffff', textTransform: 'uppercase' }}>Journal</span>
+          <Link href="/journal" style={{ textDecoration: 'none' }}>
+            <span style={{ fontSize: '13px', fontWeight: 700, letterSpacing: '0.12em', color: '#ffffff', textTransform: 'uppercase', cursor: 'pointer' }}>Journal →</span>
+          </Link>
           <span style={{ fontSize: '10px', color: '#444', marginLeft: '4px' }}>{format(new Date(), 'MMM d')}</span>
           <div style={{ marginLeft: 'auto', display: 'flex', gap: '8px', alignItems: 'center' }}>
             <button onClick={() => setShowHistory(true)} style={{ background: 'none', border: 'none', color: '#444', cursor: 'pointer', fontSize: '13px' }}>↗</button>

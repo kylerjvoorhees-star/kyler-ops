@@ -1,5 +1,6 @@
 'use client'
 import { useState, useEffect, useCallback } from 'react'
+import Link from 'next/link'
 import Card from './Card'
 import AIInsightButton from './AIInsightButton'
 
@@ -63,7 +64,9 @@ export default function KeyBlockersCard() {
     <Card>
       <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '14px' }}>
         <div style={{ width: '6px', height: '6px', borderRadius: '50%', background: '#ff4444' }} />
-        <span style={LABEL}>Key Blockers</span>
+        <Link href="/blockers" style={{ textDecoration: 'none' }}>
+          <span style={{ ...LABEL, cursor: 'pointer' }}>Key Blockers →</span>
+        </Link>
         {blockers.length > 0 && (
           <span style={{
             background: '#ff4444', color: '#000', borderRadius: '10px',

@@ -1,5 +1,23 @@
 import { supabaseAdmin } from '@/lib/supabase'
 
+export async function GET(request: Request) {
+  const url = new URL(request.url)
+  const since = url.searchParams.get('since')
+  const until = url.searchParams.get('until')
+
+  let query = supabaseAdmin
+    .from('calendar_events')
+    .select('*')
+    .order('start_time', { ascending: true })
+
+  if (since) query = query.gte('start_time', since)
+  if (until) query = query.lte('start_time', until)
+
+  const { data, error } = await query.limit(100)
+  if (error) return Response.json({ events: [] })
+  return Response.json({ events: data ?? [] })
+}
+
 export async function POST(request: Request) {
   const body = await request.json()
   const { title, start_time, end_time, event_type, notes } = body

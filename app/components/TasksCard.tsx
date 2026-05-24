@@ -1,6 +1,7 @@
 'use client'
 
 import { useState, useEffect } from 'react'
+import Link from 'next/link'
 import Drawer from './Drawer'
 import Card from './Card'
 import AIInsightButton from './AIInsightButton'
@@ -86,7 +87,9 @@ export default function TasksCard() {
       <Card>
         <div style={{ display: 'flex', alignItems: 'center', gap: '7px', marginBottom: '14px' }}>
           <div style={{ width: '5px', height: '5px', borderRadius: '50%', background: '#C9933A' }} />
-          <span style={LABEL}>Tasks</span>
+          <Link href="/tasks" style={{ textDecoration: 'none' }}>
+            <span style={{ ...LABEL, cursor: 'pointer' }}>Tasks →</span>
+          </Link>
           {tasks.length > 0 && (
             <span style={{ fontSize: '9px', padding: '1px 7px', background: '#1a1a1a', color: '#555', borderRadius: '20px', fontWeight: 600 }}>{tasks.length}</span>
           )}

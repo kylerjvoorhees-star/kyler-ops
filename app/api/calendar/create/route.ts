@@ -24,8 +24,7 @@ export async function POST(request: Request) {
         'SUMMARY:' + title,
         'DESCRIPTION:' + (notes ?? ''),
         'END:VEVENT', 'END:VCALENDAR',
-      ].join('
-')
+      ].join('\r\n')
     } else {
       const dtStart = startDate.replace(/-/g, '') + 'T' + (startTime ?? '09:00').replace(':', '') + '00'
       const dtEnd = endDate.replace(/-/g, '') + 'T' + (endTime ?? startTime ?? '10:00').replace(':', '') + '00'
@@ -38,8 +37,7 @@ export async function POST(request: Request) {
         'SUMMARY:' + title,
         'DESCRIPTION:' + (notes ?? ''),
         'END:VEVENT', 'END:VCALENDAR',
-      ].join('
-')
+      ].join('\r\n')
     }
     let caldavSuccess = false
     if (process.env.APPLE_CALDAV_USERNAME && process.env.APPLE_CALDAV_APP_PASSWORD) {

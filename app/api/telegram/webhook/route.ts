@@ -17,8 +17,6 @@ export async function POST(request: Request) {
     const incomingChatId = message.chat.id.toString()
     const expectedChatId = process.env.TELEGRAM_CHAT_ID
 
-    // If TELEGRAM_CHAT_ID is set but does not match, tell the sender their ID
-    // so the env var can be corrected — do NOT silently drop.
     if (expectedChatId && incomingChatId !== expectedChatId) {
       await sendTelegram(incomingChatId,
         'KylerOps: unauthorized. Your chat ID is ' + incomingChatId +
@@ -27,9 +25,7 @@ export async function POST(request: Request) {
       return Response.json({ ok: true })
     }
 
-    // If TELEGRAM_CHAT_ID is not set at all, respond to any sender (open mode)
     const text = message.text as string
-
     const result = await routeOperatorCommand(text)
 
     let replyText = 'Done — ' + result.confirmation
@@ -37,9 +33,7 @@ export async function POST(request: Request) {
       replyText = result.answer
     }
     if (result.route && result.route !== 'null' && result.route !== null) {
-      replyText += '
-
-Head to kylerops.com/' + (result.route === 'home' ? '' : result.route)
+      replyText += '\n\nHead to kylerops.com/' + (result.route === 'home' ? '' : result.route)
     }
 
     await sendTelegram(incomingChatId, replyText)

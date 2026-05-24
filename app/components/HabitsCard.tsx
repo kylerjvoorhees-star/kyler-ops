@@ -1,6 +1,7 @@
 'use client'
 
 import { useState, useEffect } from 'react'
+import Link from 'next/link'
 import { format, subDays } from 'date-fns'
 import Card from './Card'
 import AIInsightButton from './AIInsightButton'
@@ -114,7 +115,9 @@ export default function HabitsCard() {
     <Card>
       <div style={{ display: 'flex', alignItems: 'center', gap: '7px', marginBottom: '14px' }}>
         <div style={{ width: '5px', height: '5px', borderRadius: '50%', background: '#C9933A' }} />
-        <span style={LABEL}>Habits</span>
+        <Link href="/habits" style={{ textDecoration: 'none' }}>
+          <span style={{ ...LABEL, cursor: 'pointer' }}>Habits →</span>
+        </Link>
         {total > 0 && (
           <span style={{ fontSize: '11px', color: '#aaa', marginLeft: '4px' }}>{done}/{total}</span>
         )}

@@ -1,6 +1,7 @@
 'use client'
 
 import { useState, useEffect } from 'react'
+import Link from 'next/link'
 import { format } from 'date-fns'
 import Card from './Card'
 import AIInsightButton from './AIInsightButton'
@@ -80,7 +81,9 @@ export default function CalendarCard() {
     <Card>
       <div style={{ display: 'flex', alignItems: 'center', gap: '7px', marginBottom: '4px' }}>
         <div style={{ width: '5px', height: '5px', borderRadius: '50%', background: '#C9933A' }} />
-        <span style={LABEL}>Calendar</span>
+        <Link href="/calendar" style={{ textDecoration: 'none' }}>
+          <span style={{ ...LABEL, cursor: 'pointer' }}>Calendar →</span>
+        </Link>
         <div style={{ marginLeft: 'auto', display: 'flex', gap: '8px', alignItems: 'center' }}>
           <AIInsightButton context="Calendar" data={{ events: events.map(e => ({ title: e.title, start: e.start_time, type: e.event_type })), count: events.length }} />
           <button

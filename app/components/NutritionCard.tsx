@@ -1,6 +1,7 @@
 'use client'
 
 import { useState, useEffect, useRef } from 'react'
+import Link from 'next/link'
 import Drawer from './Drawer'
 import Card from './Card'
 import AIInsightButton from './AIInsightButton'
@@ -113,7 +114,9 @@ export default function NutritionCard() {
       <Card>
         <div style={{ display: 'flex', alignItems: 'center', gap: '7px', marginBottom: '14px' }}>
           <div style={{ width: '5px', height: '5px', borderRadius: '50%', background: '#C9933A' }} />
-          <span style={{ fontSize: '13px', fontWeight: 700, letterSpacing: '0.12em', color: '#ffffff', textTransform: 'uppercase' }}>Nutrition</span>
+          <Link href="/nutrition" style={{ textDecoration: 'none' }}>
+            <span style={{ fontSize: '13px', fontWeight: 700, letterSpacing: '0.12em', color: '#ffffff', textTransform: 'uppercase', cursor: 'pointer' }}>Nutrition →</span>
+          </Link>
           <div style={{ marginLeft: 'auto', display: 'flex', gap: '8px', alignItems: 'center' }}>
             <AIInsightButton context="Nutrition" data={{ totals, goals: GOALS }} />
             <button onClick={loadHistory} style={{ background: 'none', border: 'none', color: '#444', cursor: 'pointer', fontSize: '13px' }}>↗</button>
