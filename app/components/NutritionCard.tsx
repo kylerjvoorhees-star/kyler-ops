@@ -2,6 +2,8 @@
 
 import { useState, useEffect, useRef } from 'react'
 import Drawer from './Drawer'
+import Card from './Card'
+import AIInsightButton from './AIInsightButton'
 import { LineChart, Line, XAxis, YAxis, Tooltip, ResponsiveContainer } from 'recharts'
 
 const GOALS = { calories: 2200, protein: 180, carbs: 200, fat: 70 }
@@ -108,11 +110,12 @@ export default function NutritionCard() {
 
   return (
     <>
-      <div style={{ background: '#111111', borderRadius: '10px', padding: '18px', border: '1px solid #1a1a1a' }}>
+      <Card>
         <div style={{ display: 'flex', alignItems: 'center', gap: '7px', marginBottom: '14px' }}>
-          <div style={{ width: '5px', height: '5px', borderRadius: '50%', background: '#ffffff' }} />
-          <span style={{ fontSize: '10px', letterSpacing: '0.14em', color: '#ffffff', textTransform: 'uppercase', fontWeight: 700 }}>Nutrition</span>
+          <div style={{ width: '5px', height: '5px', borderRadius: '50%', background: '#C9933A' }} />
+          <span style={{ fontSize: '13px', fontWeight: 700, letterSpacing: '0.12em', color: '#ffffff', textTransform: 'uppercase' }}>Nutrition</span>
           <div style={{ marginLeft: 'auto', display: 'flex', gap: '8px', alignItems: 'center' }}>
+            <AIInsightButton context="Nutrition" data={{ totals, goals: GOALS }} />
             <button onClick={loadHistory} style={{ background: 'none', border: 'none', color: '#444', cursor: 'pointer', fontSize: '13px' }}>↗</button>
             <button onClick={() => setShowManual(v => !v)} style={{ background: 'none', border: 'none', color: '#555', cursor: 'pointer', fontSize: '18px', lineHeight: 1 }}>+</button>
             <button
@@ -151,7 +154,7 @@ export default function NutritionCard() {
         )}
 
         {loading ? (
-          <span style={{ fontSize: '11px', color: '#333' }}>Loading…</span>
+          <span style={{ fontSize: '12px', color: 'rgba(255,255,255,0.35)' }}>Loading…</span>
         ) : (
           <div style={{ display: 'flex', justifyContent: 'space-between' }}>
             <Ring value={totals.calories} max={GOALS.calories} label="kcal" />
@@ -160,9 +163,9 @@ export default function NutritionCard() {
             <Ring value={totals.fat} max={GOALS.fat} label="fat" />
           </div>
         )}
-      </div>
+      </Card>
 
-      <Drawer open={showHistory} onClose={() => setShowHistory(false)} title="Nutrition History" dotColor="#ffffff">
+      <Drawer open={showHistory} onClose={() => setShowHistory(false)} title="Nutrition History" dotColor="#C9933A">
         <div style={{ fontSize: '10px', letterSpacing: '0.1em', color: '#444', textTransform: 'uppercase', marginBottom: '12px' }}>7-Day Macro Trends</div>
         <div style={{ height: '160px', marginBottom: '16px' }}>
           <ResponsiveContainer width="100%" height="100%">

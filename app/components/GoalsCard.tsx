@@ -2,11 +2,17 @@
 
 import { useState, useEffect } from 'react'
 import { format } from 'date-fns'
+import Card from './Card'
 
 interface Milestone { id: string; title: string; completed: boolean; due_date?: string }
 interface Goal {
   id: string; title: string; category?: string; target_date?: string
   progress: number; status: string; milestones?: Milestone[]
+}
+
+const LABEL: React.CSSProperties = {
+  fontSize: '13px', fontWeight: 700, letterSpacing: '0.12em',
+  textTransform: 'uppercase', color: '#ffffff',
 }
 
 const CATEGORIES = ['health', 'career', 'finance', 'relationships', 'personal']
@@ -86,10 +92,10 @@ export default function GoalsCard() {
   }
 
   return (
-    <div style={{ background: '#111111', borderRadius: '10px', padding: '18px', border: '1px solid #1a1a1a' }}>
+    <Card>
       <div style={{ display: 'flex', alignItems: 'center', gap: '7px', marginBottom: '14px' }}>
-        <div style={{ width: '5px', height: '5px', borderRadius: '50%', background: '#ffffff' }} />
-        <span style={{ fontSize: '10px', letterSpacing: '0.14em', color: '#ffffff', textTransform: 'uppercase', fontWeight: 700 }}>Goals</span>
+        <div style={{ width: '5px', height: '5px', borderRadius: '50%', background: '#C9933A' }} />
+        <span style={LABEL}>Goals</span>
         <button onClick={() => setShowAdd(v => !v)} style={{ marginLeft: 'auto', background: 'none', border: 'none', color: '#555', cursor: 'pointer', fontSize: '18px', lineHeight: 1 }}>+</button>
       </div>
 
@@ -114,11 +120,11 @@ export default function GoalsCard() {
 
       <div style={{ display: 'flex', flexDirection: 'column' }}>
         {loading ? (
-          <span style={{ fontSize: '11px', color: '#333' }}>Loading…</span>
+          <span style={{ fontSize: '12px', color: 'rgba(255,255,255,0.35)' }}>Loading…</span>
         ) : goals.length === 0 ? (
-          <span style={{ fontSize: '12px', color: '#333' }}>No goals yet. Add one to start tracking.</span>
+          <span style={{ fontSize: '12px', color: 'rgba(255,255,255,0.65)' }}>No goals yet. Add one to start tracking.</span>
         ) : goals.map((g, i) => (
-          <div key={g.id} style={{ borderBottom: i < goals.length - 1 ? '1px solid #1a1a1a' : 'none' }}>
+          <div key={g.id} style={{ borderBottom: i < goals.length - 1 ? '1px solid #1f1f1f' : 'none' }}>
             <button onClick={() => toggleExpand(g.id)} style={{
               display: 'flex', flexDirection: 'column', gap: '7px', padding: '10px 0',
               background: 'none', border: 'none', cursor: 'pointer', textAlign: 'left', width: '100%',
@@ -137,16 +143,15 @@ export default function GoalsCard() {
                       {format(new Date(g.target_date + 'T12:00:00'), 'MMM d')}
                     </span>
                   )}
-                  <span style={{ fontSize: '10px', color: '#333' }}>{expanded === g.id ? '▲' : '▼'}</span>
+                  <span style={{ fontSize: '10px', color: '#444' }}>{expanded === g.id ? '▲' : '▼'}</span>
                 </div>
               </div>
               <div style={{ width: '100%', height: '2px', background: '#1a1a1a', borderRadius: '2px', overflow: 'hidden' }}>
-                <div style={{ height: '100%', width: `${g.progress}%`, background: '#ffffff', borderRadius: '2px', transition: 'width 0.4s' }} />
+                <div style={{ height: '100%', width: `${g.progress}%`, background: '#C9933A', borderRadius: '2px', transition: 'width 0.4s' }} />
               </div>
               <div style={{ fontSize: '10px', color: '#444' }}>{g.progress}%</div>
             </button>
 
-            {/* Expanded milestones */}
             {expanded === g.id && (
               <div style={{ paddingBottom: '12px', paddingLeft: '8px' }}>
                 {(g.milestones ?? []).map(m => (
@@ -158,7 +163,7 @@ export default function GoalsCard() {
                       <button onClick={() => toggleMilestone(g.id, m.id)} style={{
                         width: '14px', height: '14px', borderRadius: '3px', cursor: 'pointer',
                         border: m.completed ? 'none' : '1px solid #333',
-                        background: m.completed ? '#ffffff' : 'transparent', flexShrink: 0,
+                        background: m.completed ? '#C9933A' : 'transparent', flexShrink: 0,
                         display: 'flex', alignItems: 'center', justifyContent: 'center',
                       }}>
                         {m.completed && <span style={{ color: '#000', fontSize: '9px' }}>✓</span>}
@@ -169,7 +174,6 @@ export default function GoalsCard() {
                   </div>
                 ))}
 
-                {/* Progress slider */}
                 <div style={{ marginTop: '10px', display: 'flex', alignItems: 'center', gap: '10px' }}>
                   <span style={{ fontSize: '10px', color: '#444' }}>Progress</span>
                   <input type="range" min="0" max="100" value={g.progress}
@@ -178,7 +182,6 @@ export default function GoalsCard() {
                   <span style={{ fontSize: '10px', color: '#aaa' }}>{g.progress}%</span>
                 </div>
 
-                {/* Add milestone */}
                 <form onSubmit={e => addMilestone(g.id, e)} style={{ display: 'flex', gap: '6px', marginTop: '8px' }}>
                   <input value={newMilestone} onChange={e => setNewMilestone(e.target.value)} placeholder="+ Add milestone"
                     style={{ flex: 1, background: '#0a0a0a', border: '1px solid #222', borderRadius: '6px', padding: '5px 8px', fontSize: '11px', color: '#ffffff', outline: 'none' }} />
@@ -192,6 +195,6 @@ export default function GoalsCard() {
           </div>
         ))}
       </div>
-    </div>
+    </Card>
   )
 }

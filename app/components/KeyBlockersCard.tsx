@@ -1,5 +1,7 @@
 'use client'
 import { useState, useEffect, useCallback } from 'react'
+import Card from './Card'
+import AIInsightButton from './AIInsightButton'
 
 interface Task {
   id: string
@@ -11,6 +13,11 @@ interface Task {
   is_blocker?: boolean
   temperature?: string
   ai_priority_score?: number
+}
+
+const LABEL: React.CSSProperties = {
+  fontSize: '13px', fontWeight: 700, letterSpacing: '0.12em',
+  textTransform: 'uppercase', color: '#ff5555',
 }
 
 const tempColor: Record<string, string> = {
@@ -52,33 +59,26 @@ export default function KeyBlockersCard() {
     setBlockers(b => b.filter(t => t.id !== id))
   }
 
-  const card: React.CSSProperties = {
-    background: '#111111',
-    border: '1px solid #1a1a1a',
-    borderRadius: '10px',
-    padding: '16px',
-  }
-
   return (
-    <div style={card}>
-      {/* Header */}
+    <Card>
       <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '14px' }}>
         <div style={{ width: '6px', height: '6px', borderRadius: '50%', background: '#ff4444' }} />
-        <span style={{ fontSize: '10px', fontWeight: 700, letterSpacing: '0.14em', color: '#ff4444', textTransform: 'uppercase' }}>
-          Key Blockers
-        </span>
+        <span style={LABEL}>Key Blockers</span>
         {blockers.length > 0 && (
           <span style={{
-            marginLeft: 'auto', background: '#ff4444', color: '#000', borderRadius: '10px',
+            background: '#ff4444', color: '#000', borderRadius: '10px',
             fontSize: '10px', fontWeight: 700, padding: '1px 7px',
           }}>{blockers.length}</span>
         )}
+        <div style={{ marginLeft: 'auto' }}>
+          <AIInsightButton context="Key Blockers" data={{ blockers: blockers.map(t => ({ title: t.title, temperature: t.temperature, due_date: t.due_date })) }} />
+        </div>
       </div>
 
-      {loading && <div style={{ color: '#444', fontSize: '12px' }}>Loading…</div>}
+      {loading && <div style={{ color: 'rgba(255,255,255,0.35)', fontSize: '12px' }}>Loading…</div>}
 
       {!loading && blockers.length === 0 && (
-        <div style={{ color: '#444', fontSize: '12px', textAlign: 'center', padding: '16px 0' }}>
+        <div style={{ color: 'rgba(255,255,255,0.65)', fontSize: '12px', textAlign: 'center', padding: '16px 0' }}>
           No blockers. Clear runway.
         </div>
       )}
@@ -122,6 +122,6 @@ export default function KeyBlockersCard() {
           </div>
         ))}
       </div>
-    </div>
+    </Card>
   )
 }

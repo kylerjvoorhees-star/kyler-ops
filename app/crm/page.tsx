@@ -131,7 +131,7 @@ function PeopleTab() {
         </div>
       )}
 
-      {loading ? <div style={{ color: '#333', fontSize: '12px' }}>Loading…</div> : (
+      {loading ? <div style={{ color: 'rgba(255,255,255,0.35)', fontSize: '12px' }}>Loading…</div> : (
         <div style={{ display: 'flex', flexDirection: 'column', gap: '24px' }}>
           {overdue.length > 0 && (
             <div>
@@ -149,7 +149,7 @@ function PeopleTab() {
               <ContactList contacts={current} onSelect={setSelected} selected={selected} />
             </div>
           )}
-          {filtered.length === 0 && <div style={{ color: '#333', fontSize: '12px' }}>No contacts found.</div>}
+          {filtered.length === 0 && <div style={{ color: 'rgba(255,255,255,0.65)', fontSize: '12px' }}>No contacts found.</div>}
         </div>
       )}
     </div>
@@ -300,7 +300,7 @@ function TasksTab() {
         </button>
       </div>
 
-      {loading ? <div style={{ color: '#333', fontSize: '12px' }}>Loading…</div> : rootTasks.length === 0 ? (
+      {loading ? <div style={{ color: 'rgba(255,255,255,0.35)', fontSize: '12px' }}>Loading…</div> : rootTasks.length === 0 ? (
         <div style={{ color: '#333', fontSize: '12px' }}>No tasks. Add one above.</div>
       ) : (
         <div style={{ display: 'flex', flexDirection: 'column', gap: '0' }}>
@@ -407,8 +407,8 @@ function CapturesTab() {
         </button>
       </form>
 
-      {loading ? <div style={{ color: '#333', fontSize: '12px' }}>Loading…</div> : captures.length === 0 ? (
-        <div style={{ color: '#333', fontSize: '12px' }}>No captures yet.</div>
+      {loading ? <div style={{ color: 'rgba(255,255,255,0.35)', fontSize: '12px' }}>Loading…</div> : captures.length === 0 ? (
+        <div style={{ color: 'rgba(255,255,255,0.65)', fontSize: '12px' }}>No captures yet.</div>
       ) : (
         <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
           {captures.map(c => (
@@ -446,8 +446,8 @@ export default function CrmPage() {
           <button key={t} onClick={() => setTab(t)} style={{
             background: 'none', border: 'none', cursor: 'pointer',
             padding: '8px 16px', fontSize: '11px', fontWeight: 700, letterSpacing: '0.12em',
-            color: tab === t ? '#ffffff' : '#444',
-            borderBottom: `2px solid ${tab === t ? '#ffffff' : 'transparent'}`,
+            color: tab === t ? '#C9933A' : '#444',
+            borderBottom: `2px solid ${tab === t ? '#C9933A' : 'transparent'}`,
             marginBottom: '-1px',
           }}>
             {t}

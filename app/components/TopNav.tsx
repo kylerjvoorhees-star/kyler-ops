@@ -16,8 +16,12 @@ export default function TopNav() {
 
   useEffect(() => {
     const tick = () => {
-      const now = new Date()
-      setTime(now.toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit', hour12: true }))
+      setTime(new Intl.DateTimeFormat('en-US', {
+        timeZone: 'America/Denver',
+        hour: 'numeric',
+        minute: '2-digit',
+        hour12: true,
+      }).format(new Date()))
     }
     tick()
     const id = setInterval(tick, 1000)

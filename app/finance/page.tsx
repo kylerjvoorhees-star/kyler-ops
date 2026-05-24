@@ -3,6 +3,7 @@
 import { useState, useEffect, useCallback, useRef } from 'react'
 import { AreaChart, Area, XAxis, YAxis, Tooltip, ResponsiveContainer } from 'recharts'
 import { format } from 'date-fns'
+import AIInsightButton from '@/app/components/AIInsightButton'
 
 interface Snapshot {
   id: string; snapshot_date: string; net_worth: number
@@ -156,10 +157,10 @@ export default function FinancePage() {
 
       {/* AI Statement Analysis */}
       {(analyzing || analysis) && (
-        <div style={{ background: '#111', border: '1px solid #1a1a1a', borderRadius: '10px', padding: '20px', marginBottom: '24px' }}>
+        <div style={{ background: '#111', border: '1px solid rgba(255,255,255,0.06)', borderLeft: '3px solid #C9933A', borderBottom: '3px solid #C9933A', borderRadius: '10px', padding: '20px', marginBottom: '24px' }}>
           <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '16px' }}>
-            <div style={{ width: '5px', height: '5px', borderRadius: '50%', background: '#ffffff' }} />
-            <span style={{ fontSize: '10px', fontWeight: 700, letterSpacing: '0.14em', color: '#ffffff', textTransform: 'uppercase' }}>Statement Analysis</span>
+            <div style={{ width: '5px', height: '5px', borderRadius: '50%', background: '#C9933A' }} />
+            <span style={{ fontSize: '13px', fontWeight: 700, letterSpacing: '0.12em', color: '#ffffff', textTransform: 'uppercase' }}>Statement Analysis</span>
             {pdfName && <span style={{ fontSize: '10px', color: '#444' }}>— {pdfName}</span>}
           </div>
 
@@ -225,7 +226,7 @@ export default function FinancePage() {
 
       {/* Net Worth Hero */}
       {loading ? (
-        <div style={{ color: '#333', fontSize: '12px' }}>Loading…</div>
+        <div style={{ color: 'rgba(255,255,255,0.35)', fontSize: '12px' }}>Loading…</div>
       ) : snapshots.length === 0 ? (
         <div style={{ color: '#444', fontSize: '14px', textAlign: 'center', padding: '60px 0' }}>
           No snapshots yet. Click &ldquo;+ Snapshot&rdquo; to add your first net worth entry.
@@ -233,10 +234,13 @@ export default function FinancePage() {
       ) : (
         <>
           {/* Hero */}
-          <div style={{ background: '#111', border: '1px solid #1a1a1a', borderRadius: '12px', padding: '28px', marginBottom: '20px' }}>
+          <div style={{ background: '#111', border: '1px solid rgba(255,255,255,0.06)', borderLeft: '3px solid #C9933A', borderBottom: '3px solid #C9933A', borderRadius: '12px', padding: '28px', marginBottom: '20px' }}>
             <div style={{ display: 'flex', alignItems: 'flex-end', justifyContent: 'space-between' }}>
               <div>
-                <div style={{ fontSize: '11px', color: '#444', letterSpacing: '0.14em', textTransform: 'uppercase', fontWeight: 700, marginBottom: '8px' }}>Net Worth</div>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '8px' }}>
+                  <div style={{ fontSize: '13px', fontWeight: 700, color: '#ffffff', letterSpacing: '0.12em', textTransform: 'uppercase' }}>Net Worth</div>
+                  <AIInsightButton context="Net Worth" data={{ latest: latest?.net_worth, delta, snapshots: snapshots.slice(0, 6).map(s => ({ date: s.snapshot_date, net_worth: s.net_worth })) }} />
+                </div>
                 <div style={{ fontSize: '48px', fontWeight: 200, color: '#ffffff', letterSpacing: '-0.02em' }}>
                   {fmtK(latest.net_worth)}
                 </div>

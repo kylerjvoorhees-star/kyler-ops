@@ -2,10 +2,16 @@
 
 import { useState, useEffect } from 'react'
 import { format, subDays } from 'date-fns'
+import Card from './Card'
+import AIInsightButton from './AIInsightButton'
 
 interface Habit { id: string; name: string; streak: number; completedToday: boolean }
 
-// 30-day heatmap for one habit
+const LABEL: React.CSSProperties = {
+  fontSize: '13px', fontWeight: 700, letterSpacing: '0.12em',
+  textTransform: 'uppercase', color: '#ffffff',
+}
+
 function HabitHeatmap({ habitId, completions }: { habitId: string; completions: { date: string; habit_id: string }[] }) {
   const days = Array.from({ length: 30 }, (_, i) => format(subDays(new Date(), 29 - i), 'yyyy-MM-dd'))
   return (
@@ -15,9 +21,8 @@ function HabitHeatmap({ habitId, completions }: { habitId: string; completions: 
         return (
           <div key={day} title={day} style={{
             width: '100%', aspectRatio: '1',
-            background: filled ? '#ffffff' : '#1a1a1a',
+            background: filled ? '#C9933A' : '#1a1a1a',
             borderRadius: '2px',
-            opacity: filled ? 0.9 : 1,
           }} />
         )
       })}
@@ -106,25 +111,25 @@ export default function HabitsCard() {
   const pct = total > 0 ? Math.round((done / total) * 100) : 0
 
   return (
-    <div style={{ background: '#111111', borderRadius: '10px', padding: '18px', border: '1px solid #1a1a1a' }}>
+    <Card>
       <div style={{ display: 'flex', alignItems: 'center', gap: '7px', marginBottom: '14px' }}>
-        <div style={{ width: '5px', height: '5px', borderRadius: '50%', background: '#ffffff' }} />
-        <span style={{ fontSize: '10px', letterSpacing: '0.14em', color: '#ffffff', textTransform: 'uppercase', fontWeight: 700 }}>Habits</span>
+        <div style={{ width: '5px', height: '5px', borderRadius: '50%', background: '#C9933A' }} />
+        <span style={LABEL}>Habits</span>
         {total > 0 && (
-          <span style={{ fontSize: '10px', color: '#aaa', marginLeft: '4px' }}>{done}/{total}</span>
+          <span style={{ fontSize: '11px', color: '#aaa', marginLeft: '4px' }}>{done}/{total}</span>
         )}
         <div style={{ marginLeft: 'auto', display: 'flex', gap: '8px', alignItems: 'center' }}>
+          <AIInsightButton context="Habits" data={{ habits: habits.map(h => ({ name: h.name, streak: h.streak, completedToday: h.completedToday })), done, total, pct }} />
           <button onClick={() => setShowInput(v => !v)} style={{ background: 'none', border: 'none', color: '#555', cursor: 'pointer', fontSize: '18px', lineHeight: 1 }}>+</button>
         </div>
       </div>
 
-      {/* Progress bar */}
       {total > 0 && (
         <div style={{ marginBottom: '12px' }}>
           <div style={{ height: '2px', background: '#1a1a1a', borderRadius: '2px', overflow: 'hidden' }}>
-            <div style={{ height: '100%', width: `${pct}%`, background: '#ffffff', borderRadius: '2px', transition: 'width 0.4s ease' }} />
+            <div style={{ height: '100%', width: `${pct}%`, background: '#C9933A', borderRadius: '2px', transition: 'width 0.4s ease' }} />
           </div>
-          <div style={{ fontSize: '9px', color: '#444', marginTop: '3px', letterSpacing: '0.1em' }}>{pct}% COMPLETE</div>
+          <div style={{ fontSize: '9px', color: '#555', marginTop: '3px', letterSpacing: '0.1em' }}>{pct}% COMPLETE</div>
         </div>
       )}
 
@@ -132,7 +137,7 @@ export default function HabitsCard() {
         <form onSubmit={addHabit} style={{ display: 'flex', gap: '6px', marginBottom: '10px' }}>
           <input
             autoFocus value={newHabit} onChange={e => setNewHabit(e.target.value)} placeholder="New habit name"
-            style={{ flex: 1, background: '#0a0a0a', border: '1px solid #222', borderRadius: '6px', padding: '7px 10px', fontSize: '11px', color: '#ffffff', outline: 'none' }}
+            style={{ flex: 1, background: '#0a0a0a', border: '1px solid #2a2a2a', borderRadius: '6px', padding: '7px 10px', fontSize: '11px', color: '#ffffff', outline: 'none' }}
           />
           <button type="submit" disabled={adding}
             style={{ background: '#ffffff', borderRadius: '6px', padding: '6px 12px', fontSize: '11px', color: '#000', border: 'none', cursor: 'pointer', fontWeight: 700, opacity: adding ? 0.5 : 1 }}>
@@ -143,27 +148,24 @@ export default function HabitsCard() {
 
       <div>
         {loading ? (
-          <span style={{ fontSize: '11px', color: '#333' }}>Loading…</span>
+          <span style={{ fontSize: '12px', color: 'rgba(255,255,255,0.35)' }}>Loading…</span>
         ) : habits.length === 0 ? (
-          <span style={{ fontSize: '12px', color: '#333' }}>No habits yet — add one to track.</span>
+          <span style={{ fontSize: '12px', color: 'rgba(255,255,255,0.65)' }}>No habits yet — add one to track.</span>
         ) : habits.map((h, i) => (
-          <div key={h.id} style={{ borderBottom: i < habits.length - 1 ? '1px solid #1a1a1a' : 'none' }}>
-            {/* Row */}
+          <div key={h.id} style={{ borderBottom: i < habits.length - 1 ? '1px solid #1f1f1f' : 'none' }}>
             <div style={{ display: 'flex', alignItems: 'center', padding: '9px 0', gap: '9px' }}>
-              {/* Checkbox */}
               <button
                 onClick={() => toggle(h.id)} disabled={toggling === h.id}
                 style={{
                   width: '14px', height: '14px', borderRadius: '3px', cursor: 'pointer',
                   border: h.completedToday ? 'none' : '1px solid #333',
-                  background: h.completedToday ? '#ffffff' : 'transparent',
+                  background: h.completedToday ? '#C9933A' : 'transparent',
                   display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0,
                 }}
               >
                 {h.completedToday && <span style={{ color: '#000', fontSize: '9px', lineHeight: 1 }}>✓</span>}
               </button>
 
-              {/* Name / edit */}
               {editingId === h.id ? (
                 <input
                   autoFocus value={editName}
@@ -174,28 +176,25 @@ export default function HabitsCard() {
                 />
               ) : (
                 <span
-                  style={{ flex: 1, fontSize: '12px', color: h.completedToday ? '#666' : '#aaaaaa', textDecoration: h.completedToday ? 'line-through' : 'none', cursor: 'pointer' }}
+                  style={{ flex: 1, fontSize: '12px', color: h.completedToday ? '#555' : '#aaaaaa', textDecoration: h.completedToday ? 'line-through' : 'none', cursor: 'pointer' }}
                   onClick={() => toggleExpand(h.id)}
                 >
                   {h.name}
                 </span>
               )}
 
-              {/* Streak */}
-              <span style={{ fontSize: '10px', color: '#444', flexShrink: 0 }}>
+              <span style={{ fontSize: '10px', color: '#555', flexShrink: 0 }}>
                 {h.streak > 0 ? `${h.streak}d` : '—'}
               </span>
 
-              {/* Expand chevron */}
               <button
                 onClick={() => toggleExpand(h.id)}
-                style={{ background: 'none', border: 'none', color: '#333', cursor: 'pointer', fontSize: '10px', padding: '0 2px', flexShrink: 0 }}
+                style={{ background: 'none', border: 'none', color: '#444', cursor: 'pointer', fontSize: '10px', padding: '0 2px', flexShrink: 0 }}
               >
                 {expanded === h.id ? '▲' : '▼'}
               </button>
             </div>
 
-            {/* Expanded panel */}
             {expanded === h.id && (
               <div style={{ padding: '8px 0 12px 22px' }}>
                 <div style={{ fontSize: '10px', color: '#444', letterSpacing: '0.1em', textTransform: 'uppercase', marginBottom: '6px' }}>30-day history</div>
@@ -216,6 +215,6 @@ export default function HabitsCard() {
           </div>
         ))}
       </div>
-    </div>
+    </Card>
   )
 }

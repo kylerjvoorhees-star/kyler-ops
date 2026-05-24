@@ -2,6 +2,7 @@
 
 import { useState, useEffect, useRef } from 'react'
 import Drawer from './Drawer'
+import Card from './Card'
 import { format } from 'date-fns'
 
 interface JournalEntry {
@@ -104,10 +105,10 @@ export default function JournalCard() {
 
   return (
     <>
-      <div style={{ background: '#111111', borderRadius: '10px', padding: '18px', border: '1px solid #1a1a1a' }}>
+      <Card>
         <div style={{ display: 'flex', alignItems: 'center', gap: '7px', marginBottom: '14px' }}>
-          <div style={{ width: '5px', height: '5px', borderRadius: '50%', background: '#ffffff' }} />
-          <span style={{ fontSize: '10px', letterSpacing: '0.14em', color: '#ffffff', textTransform: 'uppercase', fontWeight: 700 }}>Journal</span>
+          <div style={{ width: '5px', height: '5px', borderRadius: '50%', background: '#C9933A' }} />
+          <span style={{ fontSize: '13px', fontWeight: 700, letterSpacing: '0.12em', color: '#ffffff', textTransform: 'uppercase' }}>Journal</span>
           <span style={{ fontSize: '10px', color: '#444', marginLeft: '4px' }}>{format(new Date(), 'MMM d')}</span>
           <div style={{ marginLeft: 'auto', display: 'flex', gap: '8px', alignItems: 'center' }}>
             <button onClick={() => setShowHistory(true)} style={{ background: 'none', border: 'none', color: '#444', cursor: 'pointer', fontSize: '13px' }}>↗</button>
@@ -121,7 +122,7 @@ export default function JournalCard() {
         </div>
 
         {loading ? (
-          <span style={{ fontSize: '11px', color: '#333' }}>Loading…</span>
+          <span style={{ fontSize: '12px', color: 'rgba(255,255,255,0.35)' }}>Loading…</span>
         ) : todayEntry ? (
           <>
             <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '10px' }}>
@@ -170,7 +171,7 @@ export default function JournalCard() {
             <div style={{ fontSize: '11px', color: '#888', lineHeight: 1.7 }}>{insight}</div>
           </div>
         )}
-      </div>
+      </Card>
 
       <Drawer open={showHistory} onClose={() => { setShowHistory(false); setViewEntry(null) }} title="Journal History" dotColor="#ffffff">
         {viewEntry ? (
@@ -186,7 +187,7 @@ export default function JournalCard() {
           <>
             <div style={{ fontSize: '10px', letterSpacing: '0.1em', color: '#444', textTransform: 'uppercase', marginBottom: '12px' }}>All Entries</div>
             {entries.length === 0 ? (
-              <span style={{ fontSize: '12px', color: '#333' }}>No journal entries yet.</span>
+              <span style={{ fontSize: '12px', color: 'rgba(255,255,255,0.65)' }}>No journal entries yet.</span>
             ) : entries.map((e, i) => (
               <button key={e.id} onClick={() => setViewEntry(e)} style={{
                 display: 'flex', alignItems: 'center', justifyContent: 'space-between', width: '100%',

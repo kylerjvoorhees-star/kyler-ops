@@ -2,6 +2,8 @@
 
 import { useState, useEffect } from 'react'
 import Drawer from './Drawer'
+import Card from './Card'
+import AIInsightButton from './AIInsightButton'
 import { format } from 'date-fns'
 
 interface Task {
@@ -9,6 +11,11 @@ interface Task {
   status: 'pending' | 'in_progress' | 'done' | 'cancelled'
   due_date?: string; ai_priority_score?: number; ai_priority_reason?: string
   tags?: string[]; is_blocker?: boolean; temperature?: string
+}
+
+const LABEL: React.CSSProperties = {
+  fontSize: '13px', fontWeight: 700, letterSpacing: '0.12em',
+  textTransform: 'uppercase', color: '#ffffff',
 }
 
 const PRIORITY_LABELS: Record<number, string> = { 1: 'urgent', 2: 'high', 3: 'normal', 4: 'low' }
@@ -76,27 +83,29 @@ export default function TasksCard() {
 
   return (
     <>
-      <div style={{ background: '#111111', borderRadius: '10px', padding: '18px', border: '1px solid #1a1a1a' }}>
+      <Card>
         <div style={{ display: 'flex', alignItems: 'center', gap: '7px', marginBottom: '14px' }}>
-          <div style={{ width: '5px', height: '5px', borderRadius: '50%', background: '#ffffff' }} />
-          <span style={{ fontSize: '10px', letterSpacing: '0.14em', color: '#ffffff', textTransform: 'uppercase', fontWeight: 700 }}>Tasks</span>
+          <div style={{ width: '5px', height: '5px', borderRadius: '50%', background: '#C9933A' }} />
+          <span style={LABEL}>Tasks</span>
           {tasks.length > 0 && (
             <span style={{ fontSize: '9px', padding: '1px 7px', background: '#1a1a1a', color: '#555', borderRadius: '20px', fontWeight: 600 }}>{tasks.length}</span>
           )}
-          <button onClick={loadHistory} style={{ marginLeft: 'auto', background: 'none', border: 'none', color: '#444', cursor: 'pointer', fontSize: '13px' }}>↗</button>
+          <div style={{ marginLeft: 'auto', display: 'flex', gap: '8px', alignItems: 'center' }}>
+            <AIInsightButton context="Tasks" data={{ tasks: topTasks.map(t => ({ title: t.title, priority: t.priority, due_date: t.due_date, is_blocker: t.is_blocker, temperature: t.temperature })) }} />
+            <button onClick={loadHistory} style={{ background: 'none', border: 'none', color: '#444', cursor: 'pointer', fontSize: '13px' }}>↗</button>
+          </div>
         </div>
 
-        {/* Task list */}
         <div style={{ marginBottom: '12px' }}>
           {loading ? (
-            <span style={{ fontSize: '11px', color: '#333' }}>Loading…</span>
+            <span style={{ fontSize: '12px', color: 'rgba(255,255,255,0.35)' }}>Loading…</span>
           ) : topTasks.length === 0 ? (
-            <span style={{ fontSize: '12px', color: '#333' }}>No tasks. Add one below.</span>
+            <span style={{ fontSize: '12px', color: 'rgba(255,255,255,0.65)' }}>No tasks. Add one below.</span>
           ) : topTasks.map((t, i) => (
             <div key={t.id} style={{
               display: 'flex', alignItems: 'center', justifyContent: 'space-between',
               padding: '9px 0',
-              borderBottom: i < topTasks.length - 1 ? '1px solid #1a1a1a' : 'none',
+              borderBottom: i < topTasks.length - 1 ? '1px solid #1f1f1f' : 'none',
             }}>
               <div style={{ display: 'flex', alignItems: 'center', gap: '9px', flex: 1, minWidth: 0 }}>
                 <button
@@ -125,13 +134,12 @@ export default function TasksCard() {
           ))}
         </div>
 
-        <div style={{ height: '1px', background: '#1a1a1a', marginBottom: '12px' }} />
+        <div style={{ height: '1px', background: '#1f1f1f', marginBottom: '12px' }} />
 
-        {/* Add task */}
         <form onSubmit={addTask} style={{ display: 'flex', gap: '6px', marginBottom: '10px' }}>
           <input
             value={newTitle} onChange={e => setNewTitle(e.target.value)} placeholder="Add task…"
-            style={{ flex: 1, background: '#0a0a0a', border: '1px solid #222', borderRadius: '6px', padding: '7px 10px', fontSize: '11px', color: '#ffffff', outline: 'none' }}
+            style={{ flex: 1, background: '#0a0a0a', border: '1px solid #2a2a2a', borderRadius: '6px', padding: '7px 10px', fontSize: '11px', color: '#ffffff', outline: 'none' }}
           />
           <button type="submit" disabled={adding || !newTitle.trim()}
             style={{ background: '#ffffff', borderRadius: '6px', padding: '6px 12px', fontSize: '11px', color: '#000', border: 'none', cursor: 'pointer', fontWeight: 700, opacity: adding ? 0.5 : 1 }}>
@@ -143,11 +151,10 @@ export default function TasksCard() {
           style={{ background: 'transparent', border: '1px solid #222', borderRadius: '6px', padding: '5px 12px', fontSize: '10px', color: '#555', cursor: 'pointer', fontWeight: 600, letterSpacing: '0.05em', opacity: prioritizing ? 0.5 : 1 }}>
           {prioritizing ? 'Prioritizing…' : '✦ AI Reprioritize'}
         </button>
-      </div>
+      </Card>
 
-      {/* Task detail drawer */}
       {selected && (
-        <Drawer open={!!selected} onClose={() => setSelected(null)} title="Task Detail" dotColor="#ffffff">
+        <Drawer open={!!selected} onClose={() => setSelected(null)} title="Task Detail" dotColor="#C9933A">
           <div style={{ marginBottom: '16px' }}>
             <div style={{ fontSize: '16px', fontWeight: 300, color: '#ffffff', marginBottom: '8px' }}>{selected.title}</div>
             {selected.description && (
@@ -183,11 +190,10 @@ export default function TasksCard() {
         </Drawer>
       )}
 
-      {/* History drawer */}
-      <Drawer open={showHistory && !selected} onClose={() => setShowHistory(false)} title="Completed Tasks" dotColor="#ffffff">
+      <Drawer open={showHistory && !selected} onClose={() => setShowHistory(false)} title="Completed Tasks" dotColor="#C9933A">
         <div style={{ fontSize: '10px', letterSpacing: '0.1em', color: '#444', textTransform: 'uppercase', marginBottom: '12px' }}>Completed</div>
         {doneTasks.length === 0 ? (
-          <span style={{ fontSize: '12px', color: '#333' }}>No completed tasks yet.</span>
+          <span style={{ fontSize: '12px', color: 'rgba(255,255,255,0.65)' }}>No completed tasks yet.</span>
         ) : doneTasks.map((t, i) => (
           <div key={t.id} style={{ padding: '9px 0', borderBottom: i < doneTasks.length - 1 ? '1px solid #1a1a1a' : 'none' }}>
             <div style={{ fontSize: '12px', color: '#666', marginBottom: '2px', textDecoration: 'line-through' }}>{t.title}</div>

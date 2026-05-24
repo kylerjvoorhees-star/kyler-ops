@@ -1,7 +1,8 @@
 'use client'
 
 import { useState, useEffect, useRef, useCallback } from 'react'
-import { format, startOfWeek, endOfWeek, subWeeks } from 'date-fns'
+import { format, startOfWeek, endOfWeek } from 'date-fns'
+import AIInsightButton from '@/app/components/AIInsightButton'
 
 interface Review {
   id: string; week_start: string; week_end: string; content: string
@@ -148,8 +149,9 @@ export default function ReviewPage() {
         <div style={{ display: 'flex', gap: '10px', alignItems: 'center' }}>
           {saving && <span style={{ fontSize: '10px', color: '#333' }}>Saving…</span>}
           {saved && !saving && <span style={{ fontSize: '10px', color: '#555' }}>Saved ✓</span>}
+          <AIInsightButton context="Weekly Review" data={{ wins: fields.wins, misses: fields.misses, patterns: fields.patterns, focus: fields.focus }} />
           <button onClick={generate} disabled={generating}
-            style={{ background: '#ffffff', border: 'none', borderRadius: '6px', padding: '8px 16px', fontSize: '11px', color: '#000', cursor: 'pointer', fontWeight: 700, opacity: generating ? 0.5 : 1 }}>
+            style={{ background: '#C9933A', border: 'none', borderRadius: '6px', padding: '8px 16px', fontSize: '11px', color: '#000', cursor: 'pointer', fontWeight: 700, opacity: generating ? 0.5 : 1 }}>
             {generating ? 'Generating…' : '✦ AI Draft'}
           </button>
         </div>
@@ -162,7 +164,7 @@ export default function ReviewPage() {
           {/* Structured sections */}
           {SECTIONS.map(sec => (
             <div key={sec.key} style={{ background: '#111', border: '1px solid #1a1a1a', borderRadius: '10px', padding: '18px' }}>
-              <div style={{ fontSize: '10px', color: '#444', letterSpacing: '0.14em', textTransform: 'uppercase', fontWeight: 700, marginBottom: '10px' }}>{sec.label}</div>
+              <div style={{ fontSize: '13px', color: '#ffffff', letterSpacing: '0.12em', textTransform: 'uppercase', fontWeight: 700, marginBottom: '10px' }}>{sec.label}</div>
               <textarea
                 value={fields[sec.key as keyof typeof fields]}
                 onChange={e => setFields(prev => ({ ...prev, [sec.key]: e.target.value }))}
@@ -175,7 +177,7 @@ export default function ReviewPage() {
 
           {/* Highlights */}
           <div style={{ background: '#111', border: '1px solid #1a1a1a', borderRadius: '10px', padding: '18px' }}>
-            <div style={{ fontSize: '10px', color: '#444', letterSpacing: '0.14em', textTransform: 'uppercase', fontWeight: 700, marginBottom: '10px' }}>HIGHLIGHTS (one per line)</div>
+            <div style={{ fontSize: '13px', color: '#ffffff', letterSpacing: '0.12em', textTransform: 'uppercase', fontWeight: 700, marginBottom: '10px' }}>HIGHLIGHTS (one per line)</div>
             <textarea
               value={fields.highlights}
               onChange={e => setFields(prev => ({ ...prev, highlights: e.target.value }))}
@@ -187,7 +189,7 @@ export default function ReviewPage() {
 
           {/* Free notes */}
           <div style={{ background: '#111', border: '1px solid #1a1a1a', borderRadius: '10px', padding: '18px' }}>
-            <div style={{ fontSize: '10px', color: '#444', letterSpacing: '0.14em', textTransform: 'uppercase', fontWeight: 700, marginBottom: '10px' }}>FREE NOTES</div>
+            <div style={{ fontSize: '13px', color: '#ffffff', letterSpacing: '0.12em', textTransform: 'uppercase', fontWeight: 700, marginBottom: '10px' }}>FREE NOTES</div>
             <textarea
               value={fields.free_notes}
               onChange={e => setFields(prev => ({ ...prev, free_notes: e.target.value }))}
@@ -199,8 +201,8 @@ export default function ReviewPage() {
 
           {/* Past reviews */}
           {pastReviews.length > 1 && (
-            <div style={{ background: '#111', border: '1px solid #1a1a1a', borderRadius: '10px', padding: '18px' }}>
-              <div style={{ fontSize: '10px', color: '#444', letterSpacing: '0.14em', textTransform: 'uppercase', fontWeight: 700, marginBottom: '14px' }}>Past Reviews</div>
+            <div style={{ background: '#111', border: '1px solid rgba(255,255,255,0.06)', borderLeft: '3px solid #C9933A', borderBottom: '3px solid #C9933A', borderRadius: '10px', padding: '18px' }}>
+              <div style={{ fontSize: '13px', color: '#ffffff', letterSpacing: '0.12em', textTransform: 'uppercase', fontWeight: 700, marginBottom: '14px' }}>Past Reviews</div>
               <div style={{ display: 'flex', flexDirection: 'column', gap: '0' }}>
                 {pastReviews.slice(1, 8).map((r, i) => (
                   <details key={r.id} style={{ borderBottom: i < Math.min(pastReviews.length - 2, 7) - 1 ? '1px solid #1a1a1a' : 'none' }}>

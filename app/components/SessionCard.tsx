@@ -2,6 +2,7 @@
 
 import { useState, useEffect, useRef } from 'react'
 import Drawer from './Drawer'
+import Card from './Card'
 import { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer } from 'recharts'
 
 const WORK_MINS = 25
@@ -95,11 +96,11 @@ export default function SessionCard() {
 
   return (
     <>
-      <div style={{ background: '#111111', borderRadius: '10px', padding: '18px', border: '1px solid #1a1a1a' }}>
+      <Card>
         {/* Header */}
         <div style={{ display: 'flex', alignItems: 'center', gap: '7px', marginBottom: '14px' }}>
-          <div style={{ width: '5px', height: '5px', borderRadius: '50%', background: '#ffffff' }} />
-          <span style={{ fontSize: '10px', letterSpacing: '0.14em', color: '#ffffff', textTransform: 'uppercase', fontWeight: 700 }}>Session</span>
+          <div style={{ width: '5px', height: '5px', borderRadius: '50%', background: '#C9933A' }} />
+          <span style={{ fontSize: '13px', fontWeight: 700, letterSpacing: '0.12em', color: '#ffffff', textTransform: 'uppercase' }}>Session</span>
           <span style={{
             marginLeft: '4px', fontSize: '9px', padding: '2px 7px',
             background: mode === 'work' ? '#1a1a1a' : '#191919',
@@ -155,7 +156,7 @@ export default function SessionCard() {
           </div>
         </div>
 
-        <div style={{ height: '1px', background: '#1a1a1a', margin: '14px 0' }} />
+        <div style={{ height: '1px', background: '#1f1f1f', margin: '14px 0' }} />
 
         {/* Stats */}
         <div style={{ display: 'flex', gap: '24px' }}>
@@ -169,7 +170,7 @@ export default function SessionCard() {
             </div>
           ))}
         </div>
-      </div>
+      </Card>
 
       <Drawer open={showHistory} onClose={() => setShowHistory(false)} title="Session History" dotColor="#ffffff">
         <div style={{ marginBottom: '20px' }}>
